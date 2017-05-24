@@ -41,7 +41,6 @@ def get_DataFrame_RealtimeORIM(filePath):
                     interval_node=etree.HTML(etree.tostring(interval_e))
                     dict['Interval']=interval_node.xpath('//Interval/text()'.lower())[0]
                     dict['EnergyMW'] = interval_node.xpath('//EnergyMW/text()'.lower())[0]
-
                     timeStr=dict['DeliveryDate']+'-'+str(int(dict['DeliveryHour'])-1)+'-'+str((int(dict['Interval'])-1)*5)
                     dict['datetime'] = datetime.datetime.strptime(timeStr, '%Y-%m-%d-%H-%M')
                     dict2 = {}

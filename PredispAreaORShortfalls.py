@@ -119,7 +119,8 @@ for gen_str in gen_file_list:
     if flag:
         print gen_str
 print '--------------------------len:%i----------------'%len(used_list)
-save_csv_PredispAreaOpResShortfalls(used_list[0])
+for i in range(len(used_list)):
+    save_csv_PredispAreaOpResShortfalls(used_list[i])
 
 # t1=datetime.datetime.now()
 # print t1
