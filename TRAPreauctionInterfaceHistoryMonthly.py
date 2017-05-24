@@ -57,8 +57,8 @@ def get_DataFrame_TRAPreauctionInterfaceHistoryMonthly(filePath):
 
     return pd.DataFrame.from_dict(data_list)
 
-file_folder='C:/Users/benson/Desktop/2016/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
-save_folder='C:/Users/benson/Desktop/IESO/2016/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
+file_folder='/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/2016/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
+save_folder='/home/peak/IESO-CSV/2016/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
 
 def generate_list_TRAPreauctionInterfaceHistoryMonthly(startMonth,endMonth,folder):
     monthList=pd.date_range(startMonth,endMonth,freq='BM')
@@ -116,11 +116,10 @@ for gen_str in gen_file_list:
     # if flag:
         # print gen_str
 print '-----------------%i-------------------------'%len(used_list)
-for i in range(len(used_list)):
-    save_csv_TRAPreauctionInterfaceHistoryMonthly(used_list[i])
-# t1=datetime.datetime.now()
-# print t1
-# pool=multiprocessing.Pool(multiprocessing.cpu_count())
-# pool.map(save_csv_TRAPreauctionInterfaceHistoryMonthly(),used_list)
-# t2=datetime.datetime.now()
-# print t2-t1
+
+t1=datetime.datetime.now()
+print t1
+pool=multiprocessing.Pool(multiprocessing.cpu_count())
+pool.map(save_csv_TRAPreauctionInterfaceHistoryMonthly,used_list)
+t2=datetime.datetime.now()
+print t2-t1
