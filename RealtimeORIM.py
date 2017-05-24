@@ -112,12 +112,12 @@ for gen_str in gen_file_list:
     # if flag:
         # print gen_str
 print '-----------------%i-------------------------'%len(used_list)
-save_csv_RealtimeORIM(used_list[0])
-# for i in range(len(used_list)):
-#     save_csv_RealtimeORIM(used_list[i])
-# t1=datetime.datetime.now()
-# print t1
-# pool=multiprocessing.Pool(multiprocessing.cpu_count())
-# pool.map(save_csv_RealtimeORIM,used_list)
-# t2=datetime.datetime.now()
-# print t2-t1
+
+for i in range(len(used_list)):
+    save_csv_RealtimeORIM(used_list[i])
+t1=datetime.datetime.now()
+print t1
+pool=multiprocessing.Pool(multiprocessing.cpu_count())
+pool.map(save_csv_RealtimeORIM,used_list)
+t2=datetime.datetime.now()
+print t2-t1
