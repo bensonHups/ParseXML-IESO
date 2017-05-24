@@ -117,10 +117,10 @@ for gen_str in gen_file_list:
         print gen_str
 print '------------------------------------------'
 
-
-t1=datetime.datetime.now()
-print t1
-pool=multiprocessing.Pool(multiprocessing.cpu_count())
-pool.map(save_csv,used_list)
-t2=datetime.datetime.now()
-print t2-t1
+save_csv(used_list[0])
+# t1=datetime.datetime.now()
+# print t1
+# pool=multiprocessing.Pool(multiprocessing.cpu_count())
+# pool.map(save_csv,used_list)
+# t2=datetime.datetime.now()
+# print t2-t1
