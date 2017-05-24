@@ -20,30 +20,25 @@ def get_DataFrame_PredispShadowPrices(filePath):
     deliverydate = html.xpath('//DocBody/DeliveryDate'.lower())
     dict['DeliveryDate'] = deliverydate[0].text
     NodePrices= html.xpath('//DocBody/NodePrices'.lower())
-    path0='//DocBody/NodePrices[%i]'
-    for i in range(len(NodePrices)):
-        NodeName=html.xpath(((path0+'/NodeName')%(i+1)).lower())
-        dict['NodeName']=NodeName[0].text
-        # print NodeName[0].text
-        HourlyPrices=html.xpath(((path0 + '/HourlyPrices')%(i+1)).lower())
-        path1 = (path0 + '/HourlyPrices[%i]')
-        for j in range(len(HourlyPrices)):
-            # DeliveryHour
-            DeliveryHour = html.xpath(((path1 + '/DeliveryHour') % (i + 1,j+1)).lower())
-            dict['DeliveryHour'] = DeliveryHour[0].text
-            Prices=html.xpath(((path1 + '/Prices') % (i + 1,j+1)).lower())
-            path2=(path1+'/Prices[%i]')
-            for k in range(len(Prices)):
-                PriceType= html.xpath(((path2 + '/PriceType') % (i + 1,j+1,k+1)).lower())
-                dict['PriceType']=PriceType[0].text
-                MCP = html.xpath(((path2 + '/MCP') % (i + 1, j + 1, k + 1)).lower())
-                dict['MCP'] = MCP[0].text
+    for node_price in NodePrices:
+        node=etree.HTML(etree.tostring(node_price))
+        dict['NodeName']=node.xpath('//nodename/text()')[0]
+        HourlyPrices=node.xpath('//HourlyPrices'.lower())
+        for hour_price in HourlyPrices:
+            hourNode=etree.HTML(etree.tostring(hour_price))
+            dict['DeliveryHour']=hourNode.xpath('//DeliveryHour/text()'.lower())[0]
+            Prices=hourNode.xpath('//Prices'.lower())
+            for price in Prices:
+                priceNode=etree.HTML(etree.tostring(price))
+                dict['PriceType'] = priceNode.xpath('//PriceType/text()'.lower())[0]
+                dict['MCP'] = priceNode.xpath('//MCP/text()'.lower())[0]
                 timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
                 dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
                 dict2 = {}
                 dict2.update(dict)
                 data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
+
 
 
 file_folder='C:/Users/benson/Desktop/2016/Predispatch Shadow Prices Report/'
@@ -108,7 +103,7 @@ def save_csv(filename):
 def print_result(request,result):
     print "result:%s %r"%(request.requestID,result)
 
-gen_file_list=generate_list_filename('20160101','20160131',file_folder)
+gen_file_list=generate_list_filename('20160101','20161231',file_folder)
 get_list_file=get_list_filename(file_folder,['.xml'])
 used_list=[]
 for gen_str in gen_file_list:
