@@ -46,7 +46,7 @@ def get_DataFrame_RealtimeMarketTotals(filePath):
     return pd.DataFrame.from_dict(data_list)
 
 file_folder='C:/Users/benson/Desktop/2016/Realtime Market totals Report/'
-save_folder='C:/Users/benson/Desktop/IESO/2016/Predispatch Market Totals Report/'
+save_folder='C:/Users/benson/Desktop/IESO/2016/Realtime Market totals Report/'
 
 def generate_list_RealtimeMarketTotals(startHour,endHour,folder):
     hourList=pd.date_range(startHour,endHour,freq='H')
