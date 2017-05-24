@@ -20,15 +20,23 @@ def get_DataFrame_RealtimeMarketTotals(filePath):
     DeliveryHour = html.xpath('//DocBody/DeliveryHour'.lower())
     dict['DeliveryHour'] = DeliveryHour[0].text
     IntervalEnergy=html.xpath('//Energies/IntervalEnergy'.lower())
-    for i in range(len(IntervalEnergy)):
-        Interval=html.xpath(('//Energies/IntervalEnergy[%i]/Interval'%(i+1)).lower())
-        dict['Interval'] = Interval[0].text
-        MQ=html.xpath(('//Energies/IntervalEnergy[%i]/MQ/MarketQuantity'%(i+1)).lower())
-        for j in range(len(MQ)):
-            MarketQuantity=html.xpath(('//Energies/IntervalEnergy[%i]/MQ[%i]/MarketQuantity'%(i+1,j+1)).lower())
-            dict['MarketQuantity']=MarketQuantity[0].text
-            EnergyMW=html.xpath(('//Energies/IntervalEnergy[%i]/MQ[%i]/EnergyMW'%(i+1,j+1)).lower())
-            dict['EnergyMW'] = EnergyMW[0].text
+    for energy in IntervalEnergy:
+        node = etree.HTML(etree.tostring(energy))
+        dict['Interval']=node.xpath('//Interval/text()'.lower())[0]
+        MQ=node.xpath('//MQ'.lower())
+        for mq in MQ:
+            mq_node=etree.HTML(etree.tostring(mq))
+            dict['MarketQuantity']=mq_node.xpath('//MarketQuantity/text()'.lower())[0]
+            dict['EnergyMW'] = mq_node.xpath('//EnergyMW/text()'.lower())[0]
+    # for i in range(len(IntervalEnergy)):
+    #     Interval=html.xpath(('//Energies/IntervalEnergy[%i]/Interval'%(i+1)).lower())
+    #     dict['Interval'] = Interval[0].text
+    #     MQ=html.xpath(('//Energies/IntervalEnergy[%i]/MQ/MarketQuantity'%(i+1)).lower())
+    #     for j in range(len(MQ)):
+    #         MarketQuantity=html.xpath(('//Energies/IntervalEnergy[%i]/MQ[%i]/MarketQuantity'%(i+1,j+1)).lower())
+    #         dict['MarketQuantity']=MarketQuantity[0].text
+    #         EnergyMW=html.xpath(('//Energies/IntervalEnergy[%i]/MQ[%i]/EnergyMW'%(i+1,j+1)).lower())
+    #         dict['EnergyMW'] = EnergyMW[0].text
             timeStr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1) + '-' + str(
                 (int(dict['Interval']) - 1) * 5)
             dict['datetime'] = datetime.datetime.strptime(timeStr, '%Y-%m-%d-%H-%M')
@@ -96,11 +104,11 @@ for gen_str in gen_file_list:
             flag=False
     if flag==False:
         used_list.append(gen_str)
-    # if flag:
-        # print gen_str
+    if flag:
+        print gen_str
 print '-----------------%i-------------------------'%len(used_list)
 # for i in range(len(used_list)):
-#     save_csv_RealtimeORIM(used_list[i])
+#     save_csv_RealtimeMarketTotals(used_list[0])
 t1=datetime.datetime.now()
 print t1
 pool=multiprocessing.Pool(multiprocessing.cpu_count())
