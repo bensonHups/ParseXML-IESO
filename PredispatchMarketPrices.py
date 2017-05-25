@@ -19,24 +19,34 @@ def get_DataFrame_PredispMktPrice(filePath):
     deliverydate = html.xpath('//DocBody/DeliveryDate'.lower())
     dict['DeliveryDate'] = deliverydate[0].text
     IntertieZonalPrices = html.xpath('//DocBody/IntertieZonalPrices'.lower())
-    path0 = '//DocBody/IntertieZonalPrices[%i]'
+    for zoneprice in IntertieZonalPrices:
+        zoneprice_node=etree.HTML(etree.tostring(zoneprice))
+        dict['IntertieZoneName'] =zoneprice_node.xpath('//IntertieZoneName/text()'.lower())[0]
+        Prices=zoneprice_node.xpath('//Prices'.lower())
+        for price in Prices:
+            price_node = etree.HTML(etree.tostring(price))
+            dict['PriceType'] =price_node.xpath('//PriceType/text()'.lower())[0]
+            HourlyPrice=price_node.xpath('//HourlyPrice'.lower())
+            for hour in HourlyPrice:
+                hour_node=etree.HTML(etree.tostring(hour))
+                dict['DeliveryHour']=hour_node.xpath('//DeliveryHour/text()'.lower())[0]
+                dict['MCP']=hour_node.xpath('//MCP/text()'.lower())[0]
 
-    for i in range(len(IntertieZonalPrices)):
-        IntertieZoneName=html.xpath(((path0+'/IntertieZoneName')%(i+1)).lower())
-        dict['IntertieZoneName']=IntertieZoneName[0].text
-        Prices=html.xpath(((path0+'/Prices')%(i+1)).lower())
-        path1=path0+'/Prices[%i]'
-
-        for j in range(len(Prices)):
-            PriceType=html.xpath(((path1+'/PriceType')%(i+1,j+1)).lower())
-            dict['PriceType'] = PriceType[0].text
-            HourlyPrice=html.xpath(((path1+'/HourlyPrice')%(i+1,j+1)).lower())
-            path2=path1+'/HourlyPrice[%i]'
-            for k in range(len(HourlyPrice)):
-                DeliveryHour=html.xpath(((path2+'/DeliveryHour')%(i+1,j+1,k+1)).lower())
-                dict['DeliveryHour'] = DeliveryHour[0].text
-                MCP = html.xpath(((path2 + '/MCP') % (i + 1, j + 1, k + 1)).lower())
-                dict['MCP'] = MCP[0].text
+    # for i in range(len(IntertieZonalPrices)):
+    #     IntertieZoneName=html.xpath(((path0+'/IntertieZoneName')%(i+1)).lower())
+    #     dict['IntertieZoneName']=IntertieZoneName[0].text
+    #     Prices=html.xpath(((path0+'/Prices')%(i+1)).lower())
+    #     path1=path0+'/Prices[%i]'
+    #     for j in range(len(Prices)):
+    #         PriceType=html.xpath(((path1+'/PriceType')%(i+1,j+1)).lower())
+    #         dict['PriceType'] = PriceType[0].text
+    #         HourlyPrice=html.xpath(((path1+'/HourlyPrice')%(i+1,j+1)).lower())
+    #         path2=path1+'/HourlyPrice[%i]'
+    #         for k in range(len(HourlyPrice)):
+    #             DeliveryHour=html.xpath(((path2+'/DeliveryHour')%(i+1,j+1,k+1)).lower())
+    #             dict['DeliveryHour'] = DeliveryHour[0].text
+    #             MCP = html.xpath(((path2 + '/MCP') % (i + 1, j + 1, k + 1)).lower())
+    #             dict['MCP'] = MCP[0].text
                 timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
                 dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
                 dict2 = {}
