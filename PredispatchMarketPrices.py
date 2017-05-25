@@ -32,7 +32,6 @@ def get_DataFrame_PredispMktPrice(filePath):
             dict['PriceType'] = PriceType[0].text
             HourlyPrice=html.xpath(((path1+'/HourlyPrice')%(i+1,j+1)).lower())
             path2=path1+'/HourlyPrice[%i]'
-
             for k in range(len(HourlyPrice)):
                 DeliveryHour=html.xpath(((path2+'/DeliveryHour')%(i+1,j+1,k+1)).lower())
                 dict['DeliveryHour'] = DeliveryHour[0].text

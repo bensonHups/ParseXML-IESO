@@ -19,27 +19,39 @@ def get_DataFrame_RealtimeIntertieSchedLimits(filePath):
     DeliveryHour = html.xpath('//DocBody/DeliveryHour'.lower())
     dict['DeliveryHour'] = DeliveryHour[0].text
     IntertieZonalEnergies= html.xpath('//DocBody/IntertieZonalEnergies'.lower())
-    path0='//DocBody/IntertieZonalEnergies[%i]'
-    print len(IntertieZonalEnergies)
-    for i in range(len(IntertieZonalEnergies)):
-        path1_1=((path0+'/IntertieZoneName')%(i+1)).lower()
-        IntertieZoneName=html.xpath(path1_1)
-        dict['IntertieZoneName']=IntertieZoneName[0].text
-        # print IntertieZoneName[0].text
-        path1=((path0+'/IntervalEnergies[%i]')).lower()
-        IntervalEnergies=html.xpath(((path0+'/IntervalEnergies')%(i+1)).lower())
-        for j in range(len(IntervalEnergies)):
-            PriceType=html.xpath(((path1+'/PriceType')%(i+1,j+1)).lower())
-            dict['PriceType']=PriceType[0].text
-            IntervalEnergy=html.xpath(((path1+'/IntervalEnergy')%(i+1,j+1)).lower())
-            path2=(path1+'/IntervalEnergy[%i]')
-            for k in range(len(IntervalEnergy)):
-                Interval = html.xpath(((path2 + '/Interval') % (i + 1, j + 1,k+1)).lower())
-                dict['Interval'] = Interval[0].text
-                EnergyMW = html.xpath(((path2 + '/EnergyMW') % (i + 1, j + 1, k + 1)).lower())
-                dict['EnergyMW'] = EnergyMW[0].text
-                Flag = html.xpath(((path2 + '/Flag') % (i + 1, j + 1, k + 1)).lower())
-                dict['Flag'] = Flag[0].text
+
+    for zonal_energy in IntertieZonalEnergies:
+        zonal_energy_node=etree.HTML(etree.tostring(zonal_energy))
+        dict['Interval'] = zonal_energy_node.xpath('//IntertieZoneName/text()'.lower())[0]
+        IntervalEnergies=zonal_energy_node.xpath('//IntervalEnergies'.lower())
+        for interval_energy in IntervalEnergies:
+            interval_energy_node = etree.HTML(etree.tostring(interval_energy))
+            dict['PriceType'] = interval_energy_node.xpath('//PriceType/text()'.lower())[0]
+            IntervalEnergy=zonal_energy_node.xpath('//IntervalEnergy'.lower())
+            for interval in IntervalEnergy:
+                interval_node=etree.HTML(etree.tostring(interval))
+                dict['Interval']= interval_node.xpath('//Interval/text()'.lower())[0]
+                dict['EnergyMW']= interval_node.xpath('//EnergyMW/text()'.lower())[0]
+                dict['Flag']= interval_node.xpath('//Flag/text()'.lower())[0]
+                # for i in range(len(IntertieZonalEnergies)):
+    #     path1_1=((path0+'/IntertieZoneName')%(i+1)).lower()
+    #     IntertieZoneName=html.xpath(path1_1)
+    #     dict['IntertieZoneName']=IntertieZoneName[0].text
+    #     # print IntertieZoneName[0].text
+    #     path1=((path0+'/IntervalEnergies[%i]')).lower()
+    #     IntervalEnergies=html.xpath(((path0+'/IntervalEnergies')%(i+1)).lower())
+    #     for j in range(len(IntervalEnergies)):
+    #         PriceType=html.xpath(((path1+'/PriceType')%(i+1,j+1)).lower())
+    #         dict['PriceType']=PriceType[0].text
+    #         IntervalEnergy=html.xpath(((path1+'/IntervalEnergy')%(i+1,j+1)).lower())
+    #         path2=(path1+'/IntervalEnergy[%i]')
+    #         for k in range(len(IntervalEnergy)):
+    #             Interval = html.xpath(((path2 + '/Interval') % (i + 1, j + 1,k+1)).lower())
+    #             dict['Interval'] = Interval[0].text
+    #             EnergyMW = html.xpath(((path2 + '/EnergyMW') % (i + 1, j + 1, k + 1)).lower())
+    #             dict['EnergyMW'] = EnergyMW[0].text
+    #             Flag = html.xpath(((path2 + '/Flag') % (i + 1, j + 1, k + 1)).lower())
+    #             dict['Flag'] = Flag[0].text
                 timeStr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1) + '-' + str(
                     (int(dict['Interval']) - 1) * 5)
                 dict['datetime'] = datetime.datetime.strptime(timeStr, '%Y-%m-%d-%H-%M')

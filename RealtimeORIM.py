@@ -19,26 +19,28 @@ def get_DataFrame_RealtimeORIM(filePath):
     dict['DeliveryDate'] = deliverydate[0].text
     DeliveryHour= html.xpath('//DocBody/DeliveryHour'.lower())
     dict['DeliveryHour'] = DeliveryHour[0].text
-
     Resource= html.xpath('//DocBody/Resource'.lower())
-    for i in range(len(Resource)):
-        ResourceName=html.xpath(('//DocBody/Resource[%i]/ResourceName'%(i+1)).lower())
-        dict['ResourceName'] =ResourceName[0].text
-        ScheduleEnergies=html.xpath(('//DocBody/Resource[%i]/ScheduleEnergies/PriceType'%(i+1)).lower())
-        for j in range(len(ScheduleEnergies)):
-            PriceType=html.xpath(('//DocBody/Resource[%i]/ScheduleEnergies[%i]/PriceType'%(i+1,j+1)).lower())
-            dict['PriceType']=PriceType[0].text
-            ScheduleTypeID=html.xpath(('//DocBody/Resource[%i]/ScheduleEnergies[%i]/ScheduleEnergy/ScheduleTypeID'
-                                       %(i+1,j+1)).lower())
-            for k in range(len(ScheduleTypeID)):
-                dict['ScheduleTypeID']= ScheduleTypeID[k].text
-                IntervalEnergy=html.xpath(('//DocBody/Resource[%i]/ScheduleEnergies[%i]/ScheduleEnergy[%i]/IntervalEnergy/Interval'
-                                    %(i+1,j+1,k+1)).lower())
-                for l in range(len(IntervalEnergy)):
-                    Interval = html.xpath(('//DocBody/Resource[%i]/ScheduleEnergies[%i]/ScheduleEnergy[%i]/IntervalEnergy[%i]/Interval' % (i + 1, j + 1, k + 1,l+1)).lower())
-                    dict['Interval']=Interval[0].text
-                    EnergyMW = html.xpath(('//DocBody/Resource[%i]/ScheduleEnergies[%i]/ScheduleEnergy[%i]/IntervalEnergy[%i]/EnergyMW' % (i + 1, j + 1, k + 1, l + 1)).lower())
-                    dict['EnergyMW'] = EnergyMW[0].text
+    print len(Resource)
+    for rs in Resource:
+        node=etree.HTML(etree.tostring(rs))
+        dict['ResourceName']=node.xpath('//ResourceName/text()'.lower())[0]
+        dict['ResourceType'] = node.xpath('//ResourceType/text()'.lower())[0]
+        print dict['ResourceName']
+        ScheduleEnergies=node.xpath('//ScheduleEnergies'.lower())
+        print len(ScheduleEnergies)
+        for schedule_energy in ScheduleEnergies:
+            energy_node=etree.HTML(etree.tostring(schedule_energy))
+            dict['PriceType']=energy_node.xpath('//PriceType/text()'.lower())[0]
+            print dict['PriceType']
+            ScheduleEnergy=energy_node.xpath('//ScheduleEnergy'.lower())
+            for s_energy in ScheduleEnergy:
+                s_node=etree.HTML(etree.tostring(s_energy))
+                dict['ScheduleTypeID']=s_node.xpath('//ScheduleTypeID/text()'.lower())[0]
+                IntervalEnergy=s_node.xpath('//IntervalEnergy'.lower())
+                for interval_e in IntervalEnergy:
+                    interval_node=etree.HTML(etree.tostring(interval_e))
+                    dict['Interval']=interval_node.xpath('//Interval/text()'.lower())[0]
+                    dict['EnergyMW'] = interval_node.xpath('//EnergyMW/text()'.lower())[0]
                     timeStr=dict['DeliveryDate']+'-'+str(int(dict['DeliveryHour'])-1)+'-'+str((int(dict['Interval'])-1)*5)
                     dict['datetime'] = datetime.datetime.strptime(timeStr, '%Y-%m-%d-%H-%M')
                     dict2 = {}
@@ -51,7 +53,7 @@ save_folder='C:/Users/benson/Desktop/IESO/2016/Realtime Operating Reserve in Mar
 
 def generate_list_RealtimeORIM(startHour,endHour,folder):
     hourList=pd.date_range(startHour,endHour,freq='H')
-    print hourList
+    # print hourList
     fileList=[]
     # PUB_RealtimeORIM_2016010101_v1
     for hour in hourList:
@@ -73,6 +75,7 @@ def IsSubString(subList,str):
 def save_csv_RealtimeORIM(filename):
     t1=datetime.datetime.now()
     df = get_DataFrame_RealtimeORIM(filename)
+    print df.shape
     hour=(filename.split('/')[-1]).split('.')[0]
     df.to_csv('%s%s.csv' % (save_folder, hour), header=True)
     t2=datetime.datetime.now()
@@ -109,8 +112,9 @@ for gen_str in gen_file_list:
     # if flag:
         # print gen_str
 print '-----------------%i-------------------------'%len(used_list)
-# for i in range(len(used_list)):
-#     save_csv_RealtimeORIM(used_list[i])
+
+for i in range(len(used_list)):
+    save_csv_RealtimeORIM(used_list[i])
 t1=datetime.datetime.now()
 print t1
 pool=multiprocessing.Pool(multiprocessing.cpu_count())
