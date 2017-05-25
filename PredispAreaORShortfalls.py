@@ -10,15 +10,11 @@ file_path='C:/Users/benson/Downloads/Predispatch Area Operating Reserve Shortfal
 def get_DataFrame_PredispAreaOpResShortfalls(filePath):
     doc = etree.parse(filePath)
     root = doc.getroot()
-    html = etree.HTML(etree.tostring(root))
     html_Str=etree.tostring(root)
-    area_list=html_Str.split('<Area>')
-    area_list_str=[]
-    for area in area_list:
-        if area.find('</Area>')>0:
-            cut_list=area.split('</Area>')
-            area_list_str.append(cut_list[0])
-    print len(area_list_str)
+    # print html_Str
+    html_Str=html_Str.replace('<Area>','<PArea>')
+    html_Str=html_Str.replace('</Area>', '</PArea>')
+    html = etree.HTML(html_Str)
     data_list = []
     dict = {}
     doctitle = html.xpath('//docheader/doctitle')
@@ -27,27 +23,38 @@ def get_DataFrame_PredispAreaOpResShortfalls(filePath):
     dict['CreatedAt'] = createdat[0].text
     deliverydate = html.xpath('//DocBody/DeliveryDate'.lower())
     dict['DeliveryDate'] = deliverydate[0].text
-    AreaEnergies= html.xpath('//DocBody/AreaEnergies'.lower())
-    path0 = '//DocBody/AreaEnergies[%i]'
-    AreaEnergies = html.xpath ('//AreaEnergies//Area'.lower())
-    for i in range(len(AreaEnergies)):
+    AreaEnergies = html.xpath ('//AreaEnergies'.lower())
+    for area in AreaEnergies:
+        area_node=etree.HTML(etree.tostring(area))
+        # print etree.tostring(area)
+        dict['Area'] = area_node.xpath('//PArea/text()'.lower())[0]
+        print dict['Area']
+        HourlyEnergies=area_node.xpath('//HourlyEnergies'.lower())
+        for hour in HourlyEnergies:
+            hour_node=etree.HTML(etree.tostring(hour))
+            dict['DeliveryHour']=hour_node.xpath('//DeliveryHour/text()'.lower())[0]
+            dict['MinORRequired'] = hour_node.xpath('//MinORRequired/text()'.lower())[0]
+            dict['Scheduled10S'] = hour_node.xpath('//Scheduled10S/text()'.lower())[0]
+            dict['Scheduled10N'] = hour_node.xpath('//Scheduled10N/text()'.lower())[0]
+            dict['ORShortfall'] = hour_node.xpath('//ORShortfall/text()'.lower())[0]
+            # for i in range(len(AreaEnergies)):
         # Area=html.xpath(((path0+'/Area')%(i+1)).lower())
         # dict['Area'] = Area[0].text
         # print Area[0].text @!!!!! I don't know why it doesn't work
-        dict['Area'] = area_list_str[0]
-        HourlyEnergies=html.xpath(((path0+'/HourlyEnergies')%(i+1)).lower())
-        path1=path0+'/HourlyEnergies[%i]'
-        for j in range(len(HourlyEnergies)):
-            DeliveryHour = html.xpath(((path1 + '/DeliveryHour') % (i + 1, j + 1)).lower())
-            dict['DeliveryHour'] = DeliveryHour[0].text
-            MinORRequired = html.xpath(((path1 + '/MinORRequired') % (i + 1, j + 1)).lower())
-            dict['MinORRequired'] = MinORRequired[0].text
-            Scheduled10S = html.xpath(((path1 + '/Scheduled10S') % (i + 1, j + 1)).lower())
-            dict['Scheduled10S'] = Scheduled10S[0].text
-            Scheduled10N = html.xpath(((path1 + '/Scheduled10N') % (i + 1, j + 1)).lower())
-            dict['Scheduled10N'] = Scheduled10N[0].text
-            ORShortfall = html.xpath(((path1 + '/ORShortfall') % (i + 1, j + 1)).lower())
-            dict['ORShortfall'] = ORShortfall[0].text
+        # dict['Area'] = area_list_str[0]
+        # HourlyEnergies=html.xpath(((path0+'/HourlyEnergies')%(i+1)).lower())
+        # path1=path0+'/HourlyEnergies[%i]'
+        # for j in range(len(HourlyEnergies)):
+        #     DeliveryHour = html.xpath(((path1 + '/DeliveryHour') % (i + 1, j + 1)).lower())
+        #     dict['DeliveryHour'] = DeliveryHour[0].text
+        #     MinORRequired = html.xpath(((path1 + '/MinORRequired') % (i + 1, j + 1)).lower())
+        #     dict['MinORRequired'] = MinORRequired[0].text
+        #     Scheduled10S = html.xpath(((path1 + '/Scheduled10S') % (i + 1, j + 1)).lower())
+        #     dict['Scheduled10S'] = Scheduled10S[0].text
+        #     Scheduled10N = html.xpath(((path1 + '/Scheduled10N') % (i + 1, j + 1)).lower())
+        #     dict['Scheduled10N'] = Scheduled10N[0].text
+        #     ORShortfall = html.xpath(((path1 + '/ORShortfall') % (i + 1, j + 1)).lower())
+        #     dict['ORShortfall'] = ORShortfall[0].text
             timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
             dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
             dict2 = {}
@@ -108,6 +115,7 @@ def print_result(request,result):
 
 gen_file_list=generate_list_PredispAreaOpResShortfalls('20160101','20161231',file_folder)
 get_list_file=get_list_filename(file_folder,['.xml'])
+print len(get_list_file)
 used_list=[]
 for gen_str in gen_file_list:
     flag=True
@@ -119,9 +127,9 @@ for gen_str in gen_file_list:
     if flag:
         print gen_str
 print '--------------------------len:%i----------------'%len(used_list)
-for i in range(len(used_list)):
-    save_csv_PredispAreaOpResShortfalls(used_list[i])
-
+# for i in range(len(used_list)):
+#     save_csv_PredispAreaOpResShortfalls(used_list[i])
+save_csv_PredispAreaOpResShortfalls(used_list[0])
 # t1=datetime.datetime.now()
 # print t1
 # pool=multiprocessing.Pool(multiprocessing.cpu_count())
