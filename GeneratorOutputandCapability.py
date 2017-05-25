@@ -2,7 +2,7 @@ import xlrd
 import pandas as pd
 import datetime
 
-file_path='C:/Users/benson/Desktop/2016/GoC 2016.xlsx'
+file_path='C:/Users/benson/Desktop/2016-example/GoC 2016.xlsx'
 
 
 def minimalist_xldate_as_datetime(xldate, datemode):
@@ -55,5 +55,6 @@ def get_DataFrame_GeneratorOutputandCapability(filePath):
     return pd.DataFrame.from_dict(data_list)
 
 df=get_DataFrame_GeneratorOutputandCapability(file_path)
+df.to_csv('C:/Users/benson/Desktop/2016-example/GoC2016.csv', header=True)
 print df.shape
 print df.head()
