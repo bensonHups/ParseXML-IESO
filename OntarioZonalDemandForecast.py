@@ -15,56 +15,95 @@ def get_DataFrame_OntarioZonalDemand(filePath):
     dict['DocTitle'] = doctitle[0].text
     createdat = html.xpath('//docheader/createdat')
     dict['CreatedAt'] = createdat[0].text
+    dict['DemandForecastStartDate']=html.xpath('//DemandForecastStartDate/text()'.lower())[0]
+    dict['DemandForecastEndDate'] = html.xpath('//DemandForecastEndDate/text()'.lower())[0]
     ZonalDemands = html.xpath('//DocBody/ZonalDemands'.lower())
-    path0 = '//DocBody/ZonalDemands[%i]'
-    for i in range(len(ZonalDemands)):
-        DeliveryDate=html.xpath(((path0+'/DeliveryDate')%(i+1)).lower())
-        dict['DeliveryDate']=DeliveryDate[0].text
-        dict['zone']='Ontario'
-        Demand=html.xpath(((path0 + '/ZonalDemand/Ontario/Demand') % (i + 1)).lower())
-        path1_1=path0 + '/ZonalDemand/Ontario/Demand[%i]'
-        for j in range(len(Demand)):
-            DeliveryHour=html.xpath(((path1_1+'/DeliveryHour')%(i+1,j+1)).lower())
-            dict['DeliveryHour'] = DeliveryHour[0].text
-            EnergyMW=html.xpath(((path1_1+'/EnergyMW')%(i+1,j+1)).lower())
-            dict['EnergyMW'] = EnergyMW[0].text
+    for zone in ZonalDemands:
+        zone_node=etree.HTML(etree.tostring(zone))
+        dict['DeliveryDate']=zone_node.xpath('//DeliveryDate/text()'.lower())[0]
+        Ontario_Demands=zone_node.xpath('//Ontario/Demand'.lower())
+        for odemand in Ontario_Demands:
+            odemand_node = etree.HTML(etree.tostring(odemand))
+            dict['zone']='Ontario'
+            dict['DeliveryHour'] = odemand_node.xpath('//DeliveryHour/text()'.lower())[0]
+            dict['EnergyMW'] = odemand_node.xpath('//EnergyMW/text()'.lower())[0]
             timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
             dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
             dict2 = {}
             dict2.update(dict)
             data_list.append(dict2)
-    for i in range(len(ZonalDemands)):
-        DeliveryDate = html.xpath(((path0 + '/DeliveryDate') % (i + 1)).lower())
-        dict['DeliveryDate'] = DeliveryDate[0].text
-        dict['zone'] = 'East'
-        Demand = html.xpath(((path0 + '/ZonalDemand/East/Demand') % (i + 1)).lower())
-        path1_1 = path0 + '/ZonalDemand/East/Demand[%i]'
-        for j in range(len(Demand)):
-            DeliveryHour = html.xpath(((path1_1 + '/DeliveryHour') % (i + 1, j + 1)).lower())
-            dict['DeliveryHour'] = DeliveryHour[0].text
-            EnergyMW = html.xpath(((path1_1 + '/EnergyMW') % (i + 1, j + 1)).lower())
-            dict['EnergyMW'] = EnergyMW[0].text
+        East_Demands = zone_node.xpath('//East/Demand'.lower())
+        for edemand in East_Demands:
+            edemand_node = etree.HTML(etree.tostring(edemand))
+            dict['zone']='East'
+            dict['DeliveryHour'] = edemand_node.xpath('//DeliveryHour/text()'.lower())[0]
+            dict['EnergyMW'] = edemand_node.xpath('//EnergyMW/text()'.lower())[0]
             timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
             dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
             dict2 = {}
             dict2.update(dict)
             data_list.append(dict2)
-    for i in range(len(ZonalDemands)):
-        DeliveryDate = html.xpath(((path0 + '/DeliveryDate') % (i + 1)).lower())
-        dict['DeliveryDate'] = DeliveryDate[0].text
-        dict['zone'] = 'West'
-        Demand = html.xpath(((path0 + '/ZonalDemand/West/Demand') % (i + 1)).lower())
-        path1_1 = path0 + '/ZonalDemand/West/Demand[%i]'
-        for j in range(len(Demand)):
-            DeliveryHour = html.xpath(((path1_1 + '/DeliveryHour') % (i + 1, j + 1)).lower())
-            dict['DeliveryHour'] = DeliveryHour[0].text
-            EnergyMW = html.xpath(((path1_1 + '/EnergyMW') % (i + 1, j + 1)).lower())
-            dict['EnergyMW'] = EnergyMW[0].text
+        West_Demands = zone_node.xpath('//West/Demand'.lower())
+        for wdemand in West_Demands:
+            wdemand_node = etree.HTML(etree.tostring(wdemand))
+            dict['zone'] = 'West'
+            dict['DeliveryHour'] = wdemand_node.xpath('//DeliveryHour/text()'.lower())[0]
+            dict['EnergyMW'] = wdemand_node.xpath('//EnergyMW/text()'.lower())[0]
             timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
             dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
             dict2 = {}
             dict2.update(dict)
             data_list.append(dict2)
+
+
+    # for i in range(len(ZonalDemands)):
+    #     DeliveryDate=html.xpath(((path0+'/DeliveryDate')%(i+1)).lower())
+    #     dict['DeliveryDate']=DeliveryDate[0].text
+    #     dict['zone']='Ontario'
+    #     Demand=html.xpath(((path0 + '/ZonalDemand/Ontario/Demand') % (i + 1)).lower())
+    #     path1_1=path0 + '/ZonalDemand/Ontario/Demand[%i]'
+    #     for j in range(len(Demand)):
+    #         DeliveryHour=html.xpath(((path1_1+'/DeliveryHour')%(i+1,j+1)).lower())
+    #         dict['DeliveryHour'] = DeliveryHour[0].text
+    #         EnergyMW=html.xpath(((path1_1+'/EnergyMW')%(i+1,j+1)).lower())
+    #         dict['EnergyMW'] = EnergyMW[0].text
+    #         timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
+    #         dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
+    #         dict2 = {}
+    #         dict2.update(dict)
+    #         data_list.append(dict2)
+    # for i in range(len(ZonalDemands)):
+    #     DeliveryDate = html.xpath(((path0 + '/DeliveryDate') % (i + 1)).lower())
+    #     dict['DeliveryDate'] = DeliveryDate[0].text
+    #     dict['zone'] = 'East'
+    #     Demand = html.xpath(((path0 + '/ZonalDemand/East/Demand') % (i + 1)).lower())
+    #     path1_1 = path0 + '/ZonalDemand/East/Demand[%i]'
+    #     for j in range(len(Demand)):
+    #         DeliveryHour = html.xpath(((path1_1 + '/DeliveryHour') % (i + 1, j + 1)).lower())
+    #         dict['DeliveryHour'] = DeliveryHour[0].text
+    #         EnergyMW = html.xpath(((path1_1 + '/EnergyMW') % (i + 1, j + 1)).lower())
+    #         dict['EnergyMW'] = EnergyMW[0].text
+    #         timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
+    #         dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
+    #         dict2 = {}
+    #         dict2.update(dict)
+    #         data_list.append(dict2)
+    # for i in range(len(ZonalDemands)):
+    #     DeliveryDate = html.xpath(((path0 + '/DeliveryDate') % (i + 1)).lower())
+    #     dict['DeliveryDate'] = DeliveryDate[0].text
+    #     dict['zone'] = 'West'
+    #     Demand = html.xpath(((path0 + '/ZonalDemand/West/Demand') % (i + 1)).lower())
+    #     path1_1 = path0 + '/ZonalDemand/West/Demand[%i]'
+    #     for j in range(len(Demand)):
+    #         DeliveryHour = html.xpath(((path1_1 + '/DeliveryHour') % (i + 1, j + 1)).lower())
+    #         dict['DeliveryHour'] = DeliveryHour[0].text
+    #         EnergyMW = html.xpath(((path1_1 + '/EnergyMW') % (i + 1, j + 1)).lower())
+    #         dict['EnergyMW'] = EnergyMW[0].text
+    #         timestr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1)
+    #         dict['datetime'] = datetime.datetime.strptime(timestr, '%Y-%m-%d-%H')
+    #         dict2 = {}
+    #         dict2.update(dict)
+    #         data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
 
 
@@ -120,6 +159,7 @@ def print_result(request,result):
 
 gen_file_list=generate_list_OntarioZonalDemand('20160621','20161231',file_folder)
 get_list_file=get_list_filename(file_folder,['.xml'])
+print len(get_list_file)
 used_list=[]
 for gen_str in gen_file_list:
     flag=True
