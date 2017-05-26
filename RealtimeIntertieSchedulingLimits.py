@@ -22,7 +22,7 @@ def get_DataFrame_RealtimeIntertieSchedLimits(filePath):
 
     for zonal_energy in IntertieZonalEnergies:
         zonal_energy_node=etree.HTML(etree.tostring(zonal_energy))
-        dict['Interval'] = zonal_energy_node.xpath('//IntertieZoneName/text()'.lower())[0]
+        dict['IntertieZoneName'] = zonal_energy_node.xpath('//IntertieZoneName/text()'.lower())[0]
         IntervalEnergies=zonal_energy_node.xpath('//IntervalEnergies'.lower())
         for interval_energy in IntervalEnergies:
             interval_energy_node = etree.HTML(etree.tostring(interval_energy))
