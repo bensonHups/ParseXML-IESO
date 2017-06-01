@@ -929,6 +929,8 @@ test_integrate_file_v1 = 'C:/Users/benson/Desktop/2016-example/PUB_Adequacy_2016
 
 # PUB_Adequacy_20160103_v
 # 2016-01-01T23:18:51
+file_folder='C:/Users/benson/Desktop/IESO/2016/System Adequacy/'
+save_folder='C:/Users/benson/Desktop/day_data/2016/System Adequacy/'
 def is_datetime_equal(t1,t2):
     t=t1-t2
     if t.seconds!=0:
@@ -939,38 +941,14 @@ def is_datetime_equal(t1,t2):
 def hour_dif(t1,t2):
     t=t1-t2
     hour_t=t.days*24+(t.seconds)/(60*60)
-    if hour_t>0:
-        return '_F%i'%(hour_t)
-    else:
-        return '_R'
+    return hour_t
 
-
-
-
-def generate_day_table(daystr,folder):
-    day_list=get_csv_list(daystr,folder)
-    df = pd.read_csv(day_list[0])
-    for i in range(1,len(day_list),1):
-        df2=pd.read_csv(day_list[i])
-        df=df.append(df2,ignore_index=True)
-    daytimeList = pd.date_range('%s 00:00:00'%daystr,'%s 23:00:00'%daystr, freq='H')
-    dict={}
-    data_list = []
-    group=df.groupby(df['datetime'])
-    for g in group:
-        df_123=group.get_group(g[0])
-        dict['datetime']=g[0]
-        for index in df_123.index:
-            str_name=df.loc[index,['SystemName']][0]
-            ctime=df.loc[index,['CreatedAt']][0]
-            ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
-            d_t=datetime.datetime.strptime(str(dict['datetime']), '%Y-%m-%d %H:%M:%S')
-            dict['%s%s'%(str_name,hour_dif(d_t,ctime_y))]=df.loc[index,['EnergyMW']][0]
-        dict2 = {}
-        dict2.update(dict)
-        data_list.append(dict2)
-    df_new=pd.DataFrame.from_dict(data_list)
-    df_new.to_csv('%sPUB_Adequacy2_%s.csv'%(folder,daystr))
+def IsSubString(subList, str):
+    flag = True
+    for subStr in subList:
+        if not (subStr in str):
+            flag = False
+    return flag
 
 def get_csv_list(daystr,folder):
     f_list=get_list_filename(folder,['.csv'])
@@ -980,6 +958,80 @@ def get_csv_list(daystr,folder):
             day_list.append(file)
     return day_list
 
-generate_day_table('20160101',save_folder)
+def generate_SystemAdequacy_Table(dayStr,header,hours_forecast):
+    day_hourlist=pd.date_range('%s 00:00:00'%dayStr,'%s 23:00:00'%dayStr,freq='H')
+    dict = {}
+    data_list = []
+    for i in range(len(day_hourlist)):
+        dict['datetime']=day_hourlist[i]
+        for j in range(len(header)):
+            str=header[j]
+            dict[str]=None
+            for k in range(1,hours_forecast+1,1):
+                dict['%s_F%i'%(str,k)]=None
+        dict2 = {}
+        dict2.update(dict)
+        data_list.append(dict2)
+
+    df_new = pd.DataFrame.from_dict(data_list)
+    df_new=df_new.set_index('datetime')
+    return df_new
+
+def update_dataframe_value(timestamp,creatat,name,value,dataframe):
+    h=hour_dif(timestamp,creatat)
+    if h<=0:
+        column_name=name
+        dataframe.set_value(timestamp, column_name, value, takeable=False)
+    elif h<9:
+        column_name='%s_F%i'%(name,h)
+        dataframe.set_value(timestamp, column_name, value, takeable=False)
+    return dataframe
+
+def get_list_filename(file_folder, FlagStr=[]):
+    import os
+    fileList = []
+    fileNames = os.listdir(file_folder)
+    if len(fileNames) > 0:
+        for file in fileNames:
+            if len(FlagStr) > 0:
+                if IsSubString(FlagStr, file):
+                    fileList.append(os.path.join(file_folder, file))
+            else:
+                fileList.append(os.path.join(file_folder, file))
+    if len(fileList) > 0:
+        fileList.sort()
+    return fileList
+
+def time_index_dataframe(daystr):
+    t1=datetime.datetime.now()
+    print t1
+    csv_list=get_csv_list(daystr,file_folder)
+    df = pd.read_csv(csv_list[0])
+    headers=df.groupby(df['SystemName'])
+    head_list=[]
+    for head in headers:
+       head_list.append(head[0])
+    df_save=generate_SystemAdequacy_Table(daystr,head_list,8)
+    # --create a save data table--
+    for file in csv_list:
+        df=pd.read_csv(file)
+        for index in df.index:
+            str_name = df.loc[index, ['SystemName']][0]
+            ctime = df.loc[index, ['CreatedAt']][0]
+            ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
+            dtime = df.loc[index, ['datetime']][0]
+            dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
+            value=df.loc[index, ['EnergyMW']][0]
+            df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
+    df_save.to_csv('%sPUB_Adequacy2_%s.csv' % (save_folder,daystr))
+    t2=datetime.datetime.now()
+    print 'saved:%s'%(t2-t1)
 
 
+t1=datetime.datetime.now()
+print t1
+day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='D')
+pool=multiprocessing.Pool(multiprocessing.cpu_count())
+pool.map(time_index_dataframe,day_list)
+t2=datetime.datetime.now()
+print t2-t1
