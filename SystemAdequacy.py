@@ -1025,7 +1025,7 @@ def time_index_dataframe(daystr):
             df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
     df_save.to_csv('%sPUB_Adequacy2_%s.csv' % (save_folder,daystr))
     t2=datetime.datetime.now()
-    print t2-t1
+    print 'saved:%s'%(t2-t1)
 
 
 t1=datetime.datetime.now()
