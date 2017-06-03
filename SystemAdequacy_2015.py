@@ -385,6 +385,7 @@ def year_csv2day_systemadequacy():
     day_str=[]
     for day in day_list:
         dstr=str(day).split(' ')[0]
+        dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
     pool=multiprocessing.Pool(multiprocessing.cpu_count())
