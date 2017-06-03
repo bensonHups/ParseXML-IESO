@@ -226,6 +226,7 @@ def get_DataFrame_SystemAdequacy_v1(filePath):
 
 xml_folder = '/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/2016/System Adequacy/'
 csv_folder = '/home/peak/IESO-CSV/2016/System Adequacy/'
+day_folder = '/home/peak/IESO-CSV/2016/System Adequacy/'
 
 def generate_list_filename_v1(startdate, enddate, folder):
     dayList = pd.date_range(startdate, enddate, freq='D')
@@ -243,7 +244,6 @@ def IsSubString(subList, str):
         if not (subStr in str):
             flag = False
     return flag
-
 
 # get all the files name from folder,filter by FlagStr
 def get_list_filename(file_folder, FlagStr=[]):
@@ -294,3 +294,102 @@ def year_xml2df_systemadequacy(file_folder):
     pool.map(save_csv, used_list)
     t2 = datetime.datetime.now()
     print t2 - t1
+
+
+def get_csv_list(daystr,folder):
+    f_list=get_list_filename(folder,['.csv'])
+    day_list=[]
+    for file in f_list:
+        if file.find(daystr)>=0:
+            day_list.append(file)
+    return day_list
+
+def hour_dif(t1,t2):
+    t=t1-t2
+    hour_t=t.days*24+(t.seconds)/(60*60)
+    return hour_t
+
+def generate_SystemAdequacy_Table(dayStr,header,hours_forecast):
+    day_hourlist=pd.date_range('%s 00:00:00'%dayStr,'%s 23:00:00'%dayStr,freq='H')
+    dict = {}
+    data_list = []
+    for i in range(len(day_hourlist)):
+        dict['datetime']=day_hourlist[i]
+        for j in range(len(header)):
+            str=header[j]
+            dict[str]=None
+            for k in range(1,hours_forecast+1,1):
+                dict['%s_F%i'%(str,k)]=None
+        dict2 = {}
+        dict2.update(dict)
+        data_list.append(dict2)
+
+    df_new = pd.DataFrame.from_dict(data_list)
+    df_new=df_new.set_index('datetime')
+    return df_new
+
+def update_dataframe_value(timestamp,creatat,name,value,dataframe):
+    h=hour_dif(timestamp,creatat)
+    if h<=0:
+        column_name=name
+        dataframe.set_value(timestamp, column_name, value, takeable=False)
+    elif h<9:
+        column_name='%s_F%i'%(name,h)
+        dataframe.set_value(timestamp, column_name, value, takeable=False)
+    return dataframe
+
+def get_list_filename(file_folder, FlagStr=[]):
+    import os
+    fileList = []
+    fileNames = os.listdir(file_folder)
+    if len(fileNames) > 0:
+        for file in fileNames:
+            if len(FlagStr) > 0:
+                if IsSubString(FlagStr, file):
+                    fileList.append(os.path.join(file_folder, file))
+            else:
+                fileList.append(os.path.join(file_folder, file))
+    if len(fileList) > 0:
+        fileList.sort()
+    return fileList
+
+def time_index_dataframe(daystr):
+    t1=datetime.datetime.now()
+    print t1
+    csv_list=get_csv_list(daystr,csv_folder)
+    df = pd.read_csv(csv_list[0])
+    headers=df.groupby(df['SystemName'])
+    head_list=[]
+    for head in headers:
+       head_list.append(head[0])
+    df_save=generate_SystemAdequacy_Table(daystr,head_list,8)
+    # --create a save data table--
+    for file in csv_list:
+        df=pd.read_csv(file)
+        for index in df.index:
+            str_name = df.loc[index, ['SystemName']][0]
+            ctime = df.loc[index, ['CreatedAt']][0]
+            ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
+            dtime = df.loc[index, ['datetime']][0]
+            dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
+            value=df.loc[index, ['EnergyMW']][0]
+            df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
+    df_save.to_csv('%sPUB_Adequacy2_%s.csv' % (day_folder,daystr))
+    t2=datetime.datetime.now()
+    print 'saved:%s'%(t2-t1)
+
+def year_csv2day_systemadequacy():
+    t1=datetime.datetime.now()
+    print t1
+    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='D')
+    day_str=[]
+    for day in day_list:
+        dstr=str(day).split(' ')[0]
+        day_str.append(dstr)
+    print day_str
+    pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(time_index_dataframe,day_list)
+    t2=datetime.datetime.now()
+    print t2-t1
+
+year_csv2day_systemadequacy()
