@@ -84,27 +84,37 @@ def save_csv_DayAheadConstrained(filename):
 def print_result(request,result):
     print "result:%s %r"%(request.requestID,result)
 
-gen_file_list=generate_list_DayAheadConstrained('20160101','20161231',file_folder)
-get_list_file=get_list_filename(file_folder,['.xml'])
-used_list=[]
-for gen_str in gen_file_list:
-    flag=True
-    for get_str in get_list_file:
-        if gen_str==get_str:
-            flag=False
-    if flag==False:
-        used_list.append(gen_str)
-    if flag:
-        print gen_str
-print '--------------------------len:%i----------------'%len(used_list)
+def process_year_xml2df(file_folder):
+    gen_file_list=generate_list_DayAheadConstrained('20160101','20161231',file_folder)
+    get_list_file=get_list_filename(file_folder,['.xml'])
+    used_list=[]
+    for gen_str in gen_file_list:
+        flag=True
+        for get_str in get_list_file:
+            if gen_str==get_str:
+                flag=False
+        if flag==False:
+            used_list.append(gen_str)
+        if flag:
+            print gen_str
+    print '--------------------------len:%i----------------'%len(used_list)
 # for i in range(len(used_list)):
 #     save_csv_DayAheadConstrained(used_list[i])
 # save_csv_DayAheadConstrained(used_list[0])
-t1=datetime.datetime.now()
-print t1
-pool=multiprocessing.Pool(multiprocessing.cpu_count())
-pool.map(save_csv_DayAheadConstrained,used_list)
-t2=datetime.datetime.now()
-print t2-t1
+    t1=datetime.datetime.now()
+    print t1
+    pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(save_csv_DayAheadConstrained,used_list)
+    t2=datetime.datetime.now()
+    print t2-t1
+
+test_integrate_folder='/home/peak/IESO-CSV/2016/System Adequacy'
+test_integrate_file='C:/Users/benson/Desktop/2016-example/PUB_Adequacy_20160101_v1'
+
+# PUB_Adequacy_20160103_v7
+def generate_day_table(dirpath):
+    df=pd.read_csv(test_integrate_file,header=True)
+
+
 
 
