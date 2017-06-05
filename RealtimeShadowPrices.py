@@ -87,7 +87,7 @@ def get_list_filename(file_folder,FlagStr=[]):
         fileList.sort()
     return fileList
 
-def year_xml2df_RealtimeShadowPrices(file_folder):
+def year_xml2df_RealtimeShadowPrices(xml_folder):
     gen_file_list=generate_list_RealtimeShadowPrices('2016-01-01 00:00','2016-12-31 23:00',xml_folder)
     get_list_file=get_list_filename(xml_folder,['.xml'])
     print len(get_list_file)
@@ -102,7 +102,6 @@ def year_xml2df_RealtimeShadowPrices(file_folder):
         # if flag:
             # print gen_str
     print '-----------------%i-------------------------'%len(used_list)
-
     t1=datetime.datetime.now()
     print t1
     pool=multiprocessing.Pool(multiprocessing.cpu_count())
@@ -201,16 +200,19 @@ def time_index_dataframe(daystr):
     t2=datetime.datetime.now()
     print 'saved:%s'%(t2-t1)
 
-t1=datetime.datetime.now()
-print t1
-day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='D')
-day_str=[]
-for day in day_list:
-    dstr=str(day).split(' ')[0]
-    dstr.replace('-','')
-    day_str.append(dstr)
-print day_str
-pool=multiprocessing.Pool(multiprocessing.cpu_count())
-pool.map(time_index_dataframe,day_str)
-t2=datetime.datetime.now()
-print t2-t1
+def csv_hour_data():
+    t1=datetime.datetime.now()
+    print t1
+    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='H')
+    day_str=[]
+    for day in day_list:
+        dstr=str(day).split(' ')[0]
+        dstr.replace('-','')
+        day_str.append(dstr)
+    print day_str
+    pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(time_index_dataframe,day_str)
+    t2=datetime.datetime.now()
+    print t2-t1
+
+
