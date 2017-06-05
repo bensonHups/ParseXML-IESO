@@ -41,7 +41,7 @@ def get_DataFrame_RealtimeShadowPrices(filePath):
                 data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
 xml_folder = '/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/2016/System Adequacy/'
-csv_folder = 'C:/Users/benson/Desktop/2016-example/'
+csv_folder = 'C:/Users/benson/Desktop/2015-csv/Realtime Shadow Prices/'
 
 def generate_list_RealtimeShadowPrices(startHour,endHour,folder):
     hourList=pd.date_range(startHour,endHour,freq='H')
@@ -112,7 +112,7 @@ def year_xml2df_RealtimeShadowPrices(xml_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-day_folder= '/home/peak/IESO-CSV/2016/System Adequacy/'
+day_folder= 'C:/Users/benson/Desktop/2015-day/Realtime Shadow Prices/'
 
 def is_datetime_equal(t1,t2):
     t=t1-t2
@@ -182,23 +182,37 @@ def time_index_dataframe(daystr):
     t1=datetime.datetime.now()
     print t1
     csv_list=get_csv_list(daystr,csv_folder)
+    print csv_list
     df = pd.read_csv(csv_list[0])
-    headers=df.groupby(df['SystemName'])
-    head_list=[]
+    headers=df.groupby(df['NodeName'])
+    headers_node = []
     for head in headers:
-       head_list.append(head[0])
-    df_save=generate_RealtimeShadowPrices_Table(daystr,head_list)
-    # --create a save data table--
+        headers_node.append(head[0])
+    headers = df.groupby(df['PriceType'])
+    headers_pricetype=[]
+    for head in headers:
+        headers_pricetype.append(head[0])
+    headers=[]
+    for i in range(len(headers_node)):
+        for j in range(len(headers_pricetype)):
+            h_str='%s_%s'%(headers_node[i],headers_pricetype[j])
+            headers.append(h_str)
+    df_save=generate_RealtimeShadowPrices_Table(daystr,headers)
+    # # --create a save data table--
     for file in csv_list:
         df=pd.read_csv(file)
         for index in df.index:
-            str_name = df.loc[index, ['SystemName']][0]
+            str_nodename = df.loc[index, ['NodeName']][0]
+            str_prictType= df.loc[index, ['PriceType']][0]
+            str_name='%s_%s'%(str_nodename,str_prictType)
             ctime = df.loc[index, ['CreatedAt']][0]
             ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
             dtime = df.loc[index, ['datetime']][0]
             dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
-            value=df.loc[index, ['EnergyMW']][0]
+            value=df.loc[index, ['MCP']][0]
             df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
+        t2=datetime.datetime.now()
+        print t2
     df_save.to_csv('%sPUB_RealtimeShadowPrices_%s.csv' % (day_folder,daystr))
     t2=datetime.datetime.now()
     print 'saved:%s'%(t2-t1)
@@ -206,11 +220,11 @@ def time_index_dataframe(daystr):
 def csv_hour_data():
     t1=datetime.datetime.now()
     print t1
-    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='H')
+    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 23:00:00',freq='D')
     day_str=[]
     for day in day_list:
         dstr=str(day).split(' ')[0]
-        dstr.replace('-','')
+        dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
     pool=multiprocessing.Pool(multiprocessing.cpu_count())
@@ -218,4 +232,5 @@ def csv_hour_data():
     t2=datetime.datetime.now()
     print t2-t1
 
-year_xml2df_RealtimeShadowPrices(xml_folder)
+csv_hour_data()
+
