@@ -113,8 +113,6 @@ for gen_str in gen_file_list:
         # print gen_str
 print '-----------------%i-------------------------'%len(used_list)
 
-for i in range(len(used_list)):
-    save_csv_RealtimeORIM(used_list[i])
 t1=datetime.datetime.now()
 print t1
 pool=multiprocessing.Pool(multiprocessing.cpu_count())

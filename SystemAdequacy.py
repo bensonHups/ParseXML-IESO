@@ -7,7 +7,6 @@ import numpy as np
 # file_path='C:/Users/benson/Desktop/2016-example/PUB_Adequacy_20160101_v1.xml'
 file_path = 'C:/Users/benson/Downloads/Adequacy Report.xml'
 
-
 # PUB_Adequacy_20160101_v1
 def get_node_value(node):
     if len(node) > 0:
@@ -1027,11 +1026,15 @@ def time_index_dataframe(daystr):
     t2=datetime.datetime.now()
     print 'saved:%s'%(t2-t1)
 
-
 t1=datetime.datetime.now()
 print t1
 day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='D')
-pool=multiprocessing.Pool(multiprocessing.cpu_count())
-pool.map(time_index_dataframe,day_list)
-t2=datetime.datetime.now()
-print t2-t1
+day_str=[]
+for day in day_list:
+    dstr=str(day).split(' ')[0]
+    day_str.append(dstr)
+print day_str
+# pool=multiprocessing.Pool(multiprocessing.cpu_count())
+# pool.map(time_index_dataframe,day_list)
+# t2=datetime.datetime.now()
+# print t2-t1
