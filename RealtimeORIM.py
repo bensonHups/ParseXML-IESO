@@ -47,7 +47,7 @@ def get_DataFrame_RealtimeORIM(filePath):
     return pd.DataFrame.from_dict(data_list)
 
 xml_folder='C:/Users/benson/Desktop/2016/Realtime Operating Reserve in Market/'
-csv_folder='C:/Users/benson/Desktop/IESO/2016/Realtime Operating Reserve in Market/'
+csv_folder='C:/Users/benson/Desktop/2015-csv/Realtime Operating Reserve in Market/'
 
 def generate_list_RealtimeORIM(startHour,endHour,folder):
     hourList=pd.date_range(startHour,endHour,freq='H')
@@ -117,7 +117,7 @@ def year_xml2df_RealtimeORIM(xml_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-day_folder= 'C:/Users/benson/Desktop/2015-day/Realtime Shadow Prices/'
+day_folder= 'C:/Users/benson/Desktop/2015-day/Realtime Operating Reserve in Market/'
 
 def is_datetime_equal(t1,t2):
     t=t1-t2
@@ -238,8 +238,9 @@ def csv_hour_data():
         dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
-    pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map(time_index_dataframe,day_str)
+    time_index_dataframe(day_str[0])
+    # pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    # pool.map(time_index_dataframe,day_str)
     t2=datetime.datetime.now()
     print t2-t1
 
