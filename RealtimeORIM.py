@@ -238,9 +238,8 @@ def csv_hour_data():
         dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
-    time_index_dataframe(day_str[0])
-    # pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    # pool.map(time_index_dataframe,day_str)
+    pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(time_index_dataframe,day_str)
     t2=datetime.datetime.now()
     print t2-t1
 
