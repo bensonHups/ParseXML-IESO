@@ -185,39 +185,40 @@ def get_list_filename(file_folder, FlagStr=[]):
 
 def time_index_dataframe(daystr):
     t1=datetime.datetime.now()
-    print t1
+
     csv_list=get_csv_list(daystr,csv_folder)
-    df = pd.read_csv(csv_list[0])
-    headers=df.groupby(df['NodeName'])
-    head_list=[]
-    for head in headers:
-       head_list.append(head[0])
-    headers = df.groupby(df['PriceType'])
-    headers_pricetype = []
-    for head in headers:
-        headers_pricetype.append(head[0])
-    headers = []
-    for i in range(len(head_list)):
-        for j in range(len(headers_pricetype)):
-            h_str = 'PredispShadowPrices_%s_%s' % (head_list[i], headers_pricetype[j])
-            headers.append(h_str)
-    df_save=generate_PredispShadowPrices_Table(daystr,headers,8)
+    if len(csv_list)>0:
+        df = pd.read_csv(csv_list[0])
+        headers=df.groupby(df['NodeName'])
+        head_list=[]
+        for head in headers:
+            head_list.append(head[0])
+        headers = df.groupby(df['PriceType'])
+        headers_pricetype = []
+        for head in headers:
+            headers_pricetype.append(head[0])
+        headers = []
+        for i in range(len(head_list)):
+            for j in range(len(headers_pricetype)):
+                h_str = 'PredispShadowPrices_%s_%s' % (head_list[i], headers_pricetype[j])
+                headers.append(h_str)
+        df_save=generate_PredispShadowPrices_Table(daystr,headers,8)
     # --create a save data table--
-    print 'len CSV:%i'%len(csv_list)
-    for file in csv_list:
-        df=pd.read_csv(file)
-        for index in df.index:
-            str_node = df.loc[index, ['NodeName']][0]
-            str_prictType = df.loc[index, ['PriceType']][0]
+        print 'len CSV:%i'%len(csv_list)
+        for file in csv_list:
+            df=pd.read_csv(file)
+            for index in df.index:
+                str_node = df.loc[index, ['NodeName']][0]
+                str_prictType = df.loc[index, ['PriceType']][0]
             # str_schedule_typeID=df.loc[index, ['ScheduleTypeID']][0]
-            str_name = 'PredispShadowPrices_%s_%s' % (str_node, str_prictType)
-            ctime = df.loc[index, ['CreatedAt']][0]
-            ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
-            dtime = df.loc[index, ['datetime']][0]
-            dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
-            value=df.loc[index, ['MCP']][0]
-            df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
-    df_save.to_csv('%sPUB_PredispShadowPrices_%s.csv' % (day_folder,daystr))
+                str_name = 'PredispShadowPrices_%s_%s' % (str_node, str_prictType)
+                ctime = df.loc[index, ['CreatedAt']][0]
+                ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
+                dtime = df.loc[index, ['datetime']][0]
+                dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
+                value=df.loc[index, ['MCP']][0]
+                df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
+        df_save.to_csv('%sPUB_PredispShadowPrices_%s.csv' % (day_folder,daystr))
     t2=datetime.datetime.now()
     print 'saved:%s'%(t2-t1)
 
