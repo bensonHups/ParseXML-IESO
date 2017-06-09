@@ -34,11 +34,8 @@ def get_DataFrame_DayAheadConstrained(filePath):
 
 
 
-file_folder='C:/Users/benson/Desktop/2016/Day-Ahead Constrained Total Report/'
-save_folder='C:/Users/benson/Desktop/IESO/2016/Day-Ahead Constrained Total Report/'
-# C:\Users\benson\Desktop\2016\Predispatch Shadow Prices Report
-
-#generate all the fileList
+xml_folder='C:/Users/benson/Desktop/2016/Day-Ahead Constrained Total Report/'
+csv_folder='C:/Users/benson/Desktop/IESO/2016/Day-Ahead Constrained Total Report/'
 def generate_list_DayAheadConstrained(startdate,enddate,folder):
     dayList=pd.date_range(startdate,enddate,freq='D')
     dayListStr=[]
@@ -75,7 +72,7 @@ def save_csv_DayAheadConstrained(filename):
     t1=datetime.datetime.now()
     df = get_DataFrame_DayAheadConstrained(filename)
     hour=(filename.split('/')[-1]).split('.')[0]
-    df.to_csv('%s%s.csv' % (save_folder, hour), header=True)
+    df.to_csv('%s%s.csv' % (csv_folder, hour), header=True)
     t2=datetime.datetime.now()
     print 'saved:%s,%s seconds'%(hour,t2-t1)
     time.sleep(2)
@@ -108,12 +105,122 @@ def process_year_xml2df(file_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-test_integrate_folder='/home/peak/IESO-CSV/2016/System Adequacy'
-test_integrate_file='C:/Users/benson/Desktop/2016-example/PUB_Adequacy_20160101_v1'
+day_folder='C:/Users/benson/Desktop/2016/Day-Ahead Constrained Total Report/'
 
-# PUB_Adequacy_20160103_v7
-def generate_day_table(dirpath):
-    df=pd.read_csv(test_integrate_file,header=True)
+
+def is_datetime_equal(t1,t2):
+    t=t1-t2
+    if t.seconds!=0:
+        return False
+    if t.days!=0:
+        return False
+    return True
+def hour_dif(t1,t2):
+    t=t1-t2
+    hour_t=t.days*24+(t.seconds)/(60*60)
+    return hour_t
+
+def get_csv_list(daystr,folder):
+    f_list=get_list_filename(folder,['.csv'])
+    day_list=[]
+    for file in f_list:
+        if file.find(daystr)>=0:
+            day_list.append(file)
+    return day_list
+
+def generate_DayAheadConstrained_Table(dayStr,header):
+    day_hourlist=pd.date_range('%s 00:00:00'%dayStr,'%s 23:00:00'%dayStr,freq='H')
+    dict = {}
+    data_list = []
+    for i in range(len(day_hourlist)):
+        dict['datetime']=day_hourlist[i]
+        for j in range(len(header)):
+            str=header[j]
+            dict['%s_DAConstTotals_DAM'%str]=None
+            dict['%s_DAConstTotals_DAF'%str]=None
+        dict2 = {}
+        dict2.update(dict)
+        data_list.append(dict2)
+
+    df_new = pd.DataFrame.from_dict(data_list)
+    df_new=df_new.set_index('datetime')
+    return df_new
+
+def update_dataframe_value(timestamp,creatat,name,value,dataframe):
+    h=creatat.hour
+    if h<12:
+        column_name='%s_DAConstTotals_DAM'%name
+        dataframe.set_value(timestamp, column_name, value, takeable=False)
+    elif h<16:
+        column_name='%s_DAConstTotals_DAF'%name
+        dataframe.set_value(timestamp, column_name, value, takeable=False)
+    return dataframe
+
+def get_list_filename(file_folder, FlagStr=[]):
+    import os
+    fileList = []
+    fileNames = os.listdir(file_folder)
+    if len(fileNames) > 0:
+        for file in fileNames:
+            if len(FlagStr) > 0:
+                if IsSubString(FlagStr, file):
+                    fileList.append(os.path.join(file_folder, file))
+            else:
+                fileList.append(os.path.join(file_folder, file))
+    if len(fileList) > 0:
+        fileList.sort()
+    return fileList
+
+def time_index_dataframe(daystr):
+    t1=datetime.datetime.now()
+    print t1
+    csv_list=get_csv_list(daystr,csv_folder)
+    print csv_list
+    df = pd.read_csv(csv_list[0])
+    headers=df.groupby(df['MarketQuantity'])
+    headers_node = []
+    for head in headers:
+        headers_node.append(head[0])
+    df_save=generate_DayAheadConstrained_Table(daystr,headers_node)
+    # # --create a save data table--
+    for file in csv_list:
+        df=pd.read_csv(file)
+        for index in df.index:
+            str_name = df.loc[index, ['MarketQuantity']][0]
+            # str_prictType= df.loc[index, ['PriceType']][0]
+            # str_schedule_typeID=df.loc[index, ['ScheduleTypeID']][0]
+            # str_name='%s_%s_%s'%(str_nodename,str_prictType,str_schedule_typeID)
+            ctime = df.loc[index, ['CreatedAt']][0]
+            ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
+            dtime = df.loc[index, ['datetime']][0]
+            dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
+            value=df.loc[index, ['EnergyMW']][0]
+            df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
+        t2=datetime.datetime.now()
+        print t2
+    df_save.to_csv('%sPUB_DAConstTotals_%s.csv' % (day_folder,daystr))
+    t2=datetime.datetime.now()
+    print 'saved:%s'%(t2-t1)
+
+def csv_hour_data():
+    t1=datetime.datetime.now()
+    print t1
+    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 23:00:00',freq='D')
+    day_str=[]
+    for day in day_list:
+        dstr=str(day).split(' ')[0]
+        dstr=dstr.replace('-','')
+        day_str.append(dstr)
+    print day_str
+    pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(time_index_dataframe,day_str)
+    t2=datetime.datetime.now()
+    print t2-t1
+csv_hour_data()
+
+
+
+
 
 
 
