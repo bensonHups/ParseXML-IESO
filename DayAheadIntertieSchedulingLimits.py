@@ -205,14 +205,14 @@ def time_index_dataframe(daystr):
 def csv_hour_data():
     t1=datetime.datetime.now()
     print t1
-    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 23:00:00',freq='D')
+    day_list=pd.date_range('2016-07-12 00:00:00','2016-10-03 23:00:00',freq='D')
     day_str=[]
     for day in day_list:
         dstr=str(day).split(' ')[0]
         dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
-    time_index_dataframe(day_str[0])
+    # time_index_dataframe(day_str[0])
     # pool=multiprocessing.Pool(multiprocessing.cpu_count())
     # pool.map(time_index_dataframe,day_str)
     t2=datetime.datetime.now()

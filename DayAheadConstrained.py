@@ -35,7 +35,7 @@ def get_DataFrame_DayAheadConstrained(filePath):
 
 
 xml_folder='C:/Users/benson/Desktop/2016/Day-Ahead Constrained Total Report/'
-csv_folder='C:/Users/benson/Desktop/IESO/2016/Day-Ahead Constrained Total Report/'
+csv_folder='C:/Users/benson/Desktop/2015-csv/Day-Ahead Constrained Total Report/'
 def generate_list_DayAheadConstrained(startdate,enddate,folder):
     dayList=pd.date_range(startdate,enddate,freq='D')
     dayListStr=[]
@@ -105,7 +105,7 @@ def process_year_xml2df(file_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-day_folder='C:/Users/benson/Desktop/2016/Day-Ahead Constrained Total Report/'
+day_folder='C:/Users/benson/Desktop/day_data/2016/Day-Ahead Constrained Total Report/'
 
 
 def is_datetime_equal(t1,t2):
@@ -199,6 +199,7 @@ def time_index_dataframe(daystr):
         t2=datetime.datetime.now()
         print t2
     df_save.to_csv('%sPUB_DAConstTotals_%s.csv' % (day_folder,daystr))
+    print '%sPUB_DAConstTotals_%s.csv' % (day_folder,daystr)
     t2=datetime.datetime.now()
     print 'saved:%s'%(t2-t1)
 
@@ -212,8 +213,9 @@ def csv_hour_data():
         dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
-    pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map(time_index_dataframe,day_str)
+    time_index_dataframe(day_str[0])
+    # pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    # pool.map(time_index_dataframe,day_str)
     t2=datetime.datetime.now()
     print t2-t1
 csv_hour_data()
