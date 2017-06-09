@@ -203,7 +203,7 @@ def time_index_dataframe(daystr):
     headers = []
     for i in range(len(head_list)):
         for j in range(len(headers_pricetype)):
-            h_str = '%s_%s' % (head_list[i], headers_pricetype[j])
+            h_str = 'PredispMktPrice_%s_%s' % (head_list[i], headers_pricetype[j])
             headers.append(h_str)
     df_save=generate_PredispMktPrice_Table(daystr,headers,8)
     # --create a save data table--
@@ -214,7 +214,7 @@ def time_index_dataframe(daystr):
             str_node = df.loc[index, ['IntertieZoneName']][0]
             str_prictType = df.loc[index, ['PriceType']][0]
             # str_schedule_typeID=df.loc[index, ['ScheduleTypeID']][0]
-            str_name = '%s_%s' % (str_node, str_prictType)
+            str_name = 'PredispMktPrice_%s_%s' % (str_node, str_prictType)
             ctime = df.loc[index, ['CreatedAt']][0]
             ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
             dtime = df.loc[index, ['datetime']][0]
