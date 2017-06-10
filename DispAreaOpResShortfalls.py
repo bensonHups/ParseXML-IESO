@@ -4,8 +4,8 @@ import datetime,time
 import numpy as np
 import  multiprocessing
 
-file_path='C:/Users/benson/Desktop/2016-example/PUB_DispAreaOpResAndEnergyCalled_2016010101_v1.xml'
-def get_DataFrame_DispAreaOpResAndEnergyCalled(filePath):
+file_path='C:/Users/benson/Desktop/2016-example/PUB_DispAreaOpResShortfalls_2016010101_v1.xml'
+def get_DataFrame_DispAreaOpResShortfalls(filePath):
     doc = etree.parse(filePath)
     root= doc.getroot()
     html_Str = etree.tostring(root)
@@ -28,9 +28,10 @@ def get_DataFrame_DispAreaOpResAndEnergyCalled(filePath):
         for interval in IntervalEnergies:
             interval_node = etree.HTML(etree.tostring(interval))
             dict['Interval'] = interval_node.xpath('//Interval/text()'.lower())[0]
-            dict['TotalScheduledOR'] = interval_node.xpath('//TotalScheduledOR/text()'.lower())[0]
-            dict['TotalCalledOR'] = interval_node.xpath('//TotalCalledOR/text()'.lower())[0]
-            dict['RemainingReserve'] = interval_node.xpath('//RemainingReserve/text()'.lower())[0]
+            dict['MinORRequired'] = interval_node.xpath('//MinORRequired/text()'.lower())[0]
+            dict['Scheduled10S'] = interval_node.xpath('//Scheduled10S/text()'.lower())[0]
+            dict['Scheduled10N'] = interval_node.xpath('//Scheduled10N/text()'.lower())[0]
+            dict['ORShortfall'] = interval_node.xpath('//ORShortfall/text()'.lower())[0]
             timeStr = dict['DeliveryDate'] + '-' + str(int(dict['DeliveryHour']) - 1) + '-' + str(
                 (int(dict['Interval']) - 1) * 5)
             dict['datetime'] = datetime.datetime.strptime(timeStr, '%Y-%m-%d-%H-%M')
@@ -39,23 +40,23 @@ def get_DataFrame_DispAreaOpResAndEnergyCalled(filePath):
             data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
 
-xml_folder='C:/Users/benson/Desktop/2016/Dispatch Area Operating Reserve-Total Scheduled and Total Energy Called/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Dispatch Area Operating Reserve-Total Scheduled and Total Energy Called/'
+xml_folder='C:/Users/benson/Desktop/IESO/2016/Dispatch Area Operating Reserve Shortfalls/'
+csv_folder='C:/Users/benson/Desktop/2015-csv/Dispatch Area Operating Reserve Shortfalls/'
 
 def generate_list_DispAreaOpResAndEnergyCalled(startHour,endHour,folder):
     hourList = pd.date_range(startHour, endHour, freq='H')
     fileList = []
-    # PUB_DispAreaOpResAndEnergyCalled_2016010520_v1
+    # PUB_DispAreaOpResShortfalls_2016010101_v1
     for hour in hourList:
         month_str = str(hour).split(' ')[0].split('-')
         hourStr = str(hour).split(' ')[1].split(':')[0]
         hourInt = int(hourStr) + 1
         if hourInt < 10:
-            fileList.append('%sPUB_DispAreaOpResAndEnergyCalled_%s%s%s0%i_v1.xml' % (
+            fileList.append('%sPUB_DispAreaOpResShortfalls_%s%s%s0%i_v1.xml' % (
             folder, month_str[0], month_str[1], month_str[2], hourInt))
         else:
             fileList.append(
-                '%sPUB_DispAreaOpResAndEnergyCalled_%s%s%s%i_v1.xml' % (folder, month_str[0], month_str[1], month_str[2], hourInt))
+                '%sPUB_DispAreaOpResShortfalls_%s%s%s%i_v1.xml' % (folder, month_str[0], month_str[1], month_str[2], hourInt))
     return fileList
 def IsSubString(subList,str):
     flag=True
@@ -64,9 +65,9 @@ def IsSubString(subList,str):
             flag=False
     return flag
 
-def save_csv_DispAreaOpResAndEnergyCalled(filename):
+def save_csv_DispAreaOpResShortfalls(filename):
     t1=datetime.datetime.now()
-    df = get_DataFrame_DispAreaOpResAndEnergyCalled(filename)
+    df = get_DataFrame_DispAreaOpResShortfalls(filename)
     hour=(filename.split('/')[-1]).split('.')[0]
     df.to_csv('%s%s.csv' % (csv_folder, hour), header=True)
     t2=datetime.datetime.now()
@@ -105,16 +106,14 @@ def xml_df_parser(xml_folder):
     print '-----------------%i-------------------------'%len(used_list)
 # for i in range(len(used_list)):
 #     save_csv_DispAreaOpResAndEnergyCalled(used_list[i])
-    save_csv_DispAreaOpResAndEnergyCalled(used_list[0])
-# t1=datetime.datetime.now()
-# print t1
-# pool=multiprocessing.Pool(multiprocessing.cpu_count())
-# pool.map(save_csv_TRAPreauctionInterfaceHistoryMonthly(),used_list)
-# t2=datetime.datetime.now()
-# print t2-t1
+    t1=datetime.datetime.now()
+    print t1
+    pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(save_csv_DispAreaOpResShortfalls,used_list)
+    t2=datetime.datetime.now()
+    print t2-t1
 
-day_folder= 'C:/Users/benson/Desktop/day_data/2016/Dispatch Area Operating Reserve-Total Scheduled and Total Energy Called/'
-
+day_folder= 'C:/Users/benson/Desktop/day_data/2016/Dispatch Area Operating Reserve Shortfalls/'
 def is_datetime_equal(t1,t2):
     t=t1-t2
     if t.seconds!=0:
@@ -135,7 +134,7 @@ def get_csv_list(daystr,folder):
             day_list.append(file)
     return day_list
 
-def generate_DispAreaOpResAndEnergyCalled_Table(dayStr,header):
+def generate_DispAreaOpResShortfalls_Table(dayStr,header):
     day_hourlist=pd.date_range('%s 00:00:00'%dayStr,'%s 23:55:00'%dayStr,freq='5min')
     dict = {}
     data_list = []
@@ -189,36 +188,40 @@ def time_index_dataframe(daystr):
     headers_node = []
     for head in headers:
         headers_node.append(head[0])
-    value_list=['RemainingReserve','TotalCalledOR','TotalScheduledOR']
+    value_list=['MinORRequired','Scheduled10S','Scheduled10N','ORShortfall']
     headers=[]
     for i in range(len(headers_node)):
         for j in range(len(value_list)):
-            headers.append('DispAreaOpResAndEnergyCalled_%s_%s'%(headers_node[i],value_list[j]))
-    df_save=generate_DispAreaOpResAndEnergyCalled_Table(daystr,headers)
+            headers.append('DispAreaOpResShortfalls_%s_%s'%(headers_node[i],value_list[j]))
+    df_save=generate_DispAreaOpResShortfalls_Table(daystr,headers)
     # # --create a save data table--
     for file in csv_list:
         df=pd.read_csv(file)
         for index in df.index:
             str_area = df.loc[index, ['Area']][0]
-            str_RemainingReserve='DispAreaOpResAndEnergyCalled_%s_RemainingReserve'%str_area
+            str_MinORRequired='DispAreaOpResShortfalls_%s_MinORRequired'%str_area
             ctime = df.loc[index, ['CreatedAt']][0]
             ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
             dtime = df.loc[index, ['datetime']][0]
             dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
-            RemainingReserve=df.loc[index, ['RemainingReserve']][0]
-            df_save=update_dataframe_value(dtime_y,ctime_y,str_RemainingReserve,RemainingReserve,df_save)
+            MinORRequired=df.loc[index, ['MinORRequired']][0]
+            df_save=update_dataframe_value(dtime_y,ctime_y,str_MinORRequired,MinORRequired,df_save)
 
-            str_TotalCalledOR = 'DispAreaOpResAndEnergyCalled_%s_TotalCalledOR' % str_area
-            TotalCalledOR = df.loc[index, ['TotalCalledOR']][0]
-            df_save = update_dataframe_value(dtime_y, ctime_y, str_TotalCalledOR, TotalCalledOR, df_save)
+            str_Scheduled10S = 'DispAreaOpResShortfalls_%s_Scheduled10S' % str_area
+            Scheduled10S = df.loc[index, ['Scheduled10S']][0]
+            df_save = update_dataframe_value(dtime_y, ctime_y, str_Scheduled10S, Scheduled10S, df_save)
 
-            str_TotalScheduledOR = 'DispAreaOpResAndEnergyCalled_%s_TotalScheduledOR' % str_area
-            TotalScheduledOR = df.loc[index, ['TotalScheduledOR']][0]
-            df_save = update_dataframe_value(dtime_y, ctime_y, str_TotalScheduledOR, TotalScheduledOR, df_save)
+            str_Scheduled10N = 'DispAreaOpResShortfalls_%s_Scheduled10N' % str_area
+            Scheduled10N = df.loc[index, ['Scheduled10N']][0]
+            df_save = update_dataframe_value(dtime_y, ctime_y, str_Scheduled10N, Scheduled10N, df_save)
+
+            str_ORShortfall = 'DispAreaOpResShortfalls_%s_ORShortfall' % str_area
+            ORShortfall = df.loc[index, ['ORShortfall']][0]
+            df_save = update_dataframe_value(dtime_y, ctime_y, str_ORShortfall, ORShortfall, df_save)
 
         t2=datetime.datetime.now()
         print t2
-    df_save.to_csv('%sDispAreaOpResAndEnergyCalled_%s.csv' % (day_folder,daystr))
+    df_save.to_csv('%sDispAreaOpResShortfalls_%s.csv' % (day_folder,daystr))
     t2=datetime.datetime.now()
     print 'saved:%s'%(t2-t1)
 
