@@ -57,7 +57,7 @@ def get_DataFrame_PredispMktPrice(filePath):
 
 
 xml_folder='C:/Users/benson/Desktop/2016/Predispatch Market Price Report/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Predispatch Market Price Report/'
+csv_folder='/home/peak/IESO-CSV/2016/Predispatch Market Price Report/'
 # C:\Users\benson\Desktop\2016\Predispatch Shadow Prices Report
 
 #generate all the fileList
@@ -128,7 +128,7 @@ def xml_df_PredispMktPrice(xml_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-day_folder='C:/Users/benson/Desktop/day_data/2016/Predispatch Market Price Report/'
+day_folder='/home/peak/IESO-DAY/2016/Predispatch Market Price Report/'
 
 def get_csv_list(daystr,folder):
     f_list=get_list_filename(folder,['.csv'])
@@ -236,11 +236,11 @@ def year_csv2day_systemadequacy():
         day_str.append(dstr)
     print day_str
     time_index_dataframe(day_str[0])
-    # try:
-    #     pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    #     pool.map(time_index_dataframe,day_list)
-    # except:
-    #     print 'here something wrong'
+    try:
+        pool=multiprocessing.Pool(multiprocessing.cpu_count())
+        pool.map(time_index_dataframe,day_str)
+    except:
+        print 'here something wrong'
     t2=datetime.datetime.now()
     print t2-t1
 

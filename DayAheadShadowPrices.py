@@ -39,7 +39,7 @@ def get_DataFrame_DAShadowPrices(filePath):
     return pd.DataFrame.from_dict(data_list)
 
 file_folder='C:/Users/benson/Desktop/2016/Day-Ahead Shadow Prices Report/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Day-Ahead Shadow Prices Report'
+csv_folder='/home/peak/IESO-CSV/2016/Day-Ahead Shadow Prices Report'
 
 def generate_list_DAShadowPrices(startdate,enddate,folder):
     dayList=pd.date_range(startdate,enddate,freq='D')
@@ -107,7 +107,7 @@ def xml_df_parser(xml_folder):
 # t2=datetime.datetime.now()
 # print t2-t1
 
-day_folder='C:/Users/benson/Desktop/day_data/2016/Day-Ahead Shadow Prices Report/'
+day_folder='/home/peak/IESO-DAY/2016/Day-Ahead Shadow Prices Report/'
 
 
 def is_datetime_equal(t1,t2):
@@ -178,38 +178,39 @@ def time_index_dataframe(daystr):
     print t1
     csv_list=get_csv_list(daystr,csv_folder)
     print csv_list
-    df = pd.read_csv(csv_list[0])
-    headers=df.groupby(df['NodeName'])
-    headers_node = []
-    for head in headers:
-        headers_node.append(head[0])
-    headers = df.groupby(df['PriceType'])
-    headers_pricetype = []
-    for head in headers:
-        headers_pricetype.append(head[0])
-    headers=[]
-    for i in range(len(headers_node)):
-        for j in range(len(headers_pricetype)):
-            h_str='%s_%s'%(headers_node[i],headers_pricetype[j])
-            headers.append(h_str)
-    df_save=generate_DAShadowPrices_Table(daystr,headers)
+    if len(csv_list)>0:
+        df = pd.read_csv(csv_list[0])
+        headers=df.groupby(df['NodeName'])
+        headers_node = []
+        for head in headers:
+            headers_node.append(head[0])
+        headers = df.groupby(df['PriceType'])
+        headers_pricetype = []
+        for head in headers:
+            headers_pricetype.append(head[0])
+        headers=[]
+        for i in range(len(headers_node)):
+            for j in range(len(headers_pricetype)):
+                h_str='%s_%s'%(headers_node[i],headers_pricetype[j])
+                headers.append(h_str)
+        df_save=generate_DAShadowPrices_Table(daystr,headers)
     # # --create a save data table--
-    for file in csv_list:
-        df=pd.read_csv(file)
-        for index in df.index:
-            str_node = df.loc[index, ['NodeName']][0]
-            str_prictType= df.loc[index, ['PriceType']][0]
+        for file in csv_list:
+            df=pd.read_csv(file)
+            for index in df.index:
+                str_node = df.loc[index, ['NodeName']][0]
+                str_prictType= df.loc[index, ['PriceType']][0]
             # str_schedule_typeID=df.loc[index, ['ScheduleTypeID']][0]
-            str_name='%s_%s'%(str_node,str_prictType)
-            ctime = df.loc[index, ['CreatedAt']][0]
-            ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
-            dtime = df.loc[index, ['datetime']][0]
-            dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
-            value=df.loc[index, ['MCP']][0]
-            df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
-        t2=datetime.datetime.now()
-        print t2
-    df_save.to_csv('%sPUB_DAShadowPrices_%s.csv' % (day_folder,daystr))
+                str_name='%s_%s'%(str_node,str_prictType)
+                ctime = df.loc[index, ['CreatedAt']][0]
+                ctime_y = datetime.datetime.strptime(ctime, '%Y-%m-%dT%H:%M:%S')
+                dtime = df.loc[index, ['datetime']][0]
+                dtime_y = datetime.datetime.strptime(dtime, '%Y-%m-%d %H:%M:%S')
+                value=df.loc[index, ['MCP']][0]
+                df_save=update_dataframe_value(dtime_y,ctime_y,str_name,value,df_save)
+            # t2=datetime.datetime.now()
+            # print t2
+        df_save.to_csv('%sPUB_DAShadowPrices_%s.csv' % (day_folder,daystr))
     # print '%sPUB_DAIntertieSchedLimits_%s.csv' % (day_folder,daystr)
     t2=datetime.datetime.now()
     print 'saved:%s'%(t2-t1)
@@ -217,19 +218,19 @@ def time_index_dataframe(daystr):
 def csv_hour_data():
     t1=datetime.datetime.now()
     print t1
-    day_list=pd.date_range('2016-01-01 00:00:00','2016-10-03 23:00:00',freq='D')
+    day_list=pd.date_range('2016-01-07 00:00:00','2016-12-31 23:00:00',freq='D')
     day_str=[]
     for day in day_list:
         dstr=str(day).split(' ')[0]
         dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
-    time_index_dataframe(day_str[0])
-    # try:
-    #     pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    #     pool.map(time_index_dataframe,day_str)
-    # except:
-    #     print 'sth wrong!'
+    # time_index_dataframe(day_str[0])
+    try:
+        pool=multiprocessing.Pool(multiprocessing.cpu_count())
+        pool.map(time_index_dataframe,day_str)
+    except:
+        print 'sth wrong!'
     t2=datetime.datetime.now()
     print t2-t1
 csv_hour_data()

@@ -44,7 +44,7 @@ def get_DataFrame_PredispatchMarket(filePath):
 
 
 xml_folder='C:/Users/benson/Desktop/2016/Predispatch Market Totals Report/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Predispatch Market Totals Report/'
+csv_folder='/home/peak/IESO-CSV/2016/Predispatch Market Totals Report/'
 # C:\Users\benson\Desktop\2016\Predispatch Shadow Prices Report
 
 #generate all the fileList
@@ -84,7 +84,7 @@ def save_csv_PredispatchMarket(filename):
     t1=datetime.datetime.now()
     df = get_DataFrame_PredispatchMarket(filename)
     hour=(filename.split('/')[-1]).split('.')[0]
-    df.to_csv('%s%s.csv' % (save_folder, hour), header=True)
+    df.to_csv('%s%s.csv' % (csv_folder, hour), header=True)
     t2=datetime.datetime.now()
     print 'saved:%s,%s seconds'%(hour,t2-t1)
     time.sleep(2)
@@ -109,7 +109,7 @@ def xml_df_PredispatchMarket(xml_folder):
     print '--------------------------len:%i----------------'%len(used_list)
 # for i in range(len(used_list)):
 #     save_csv_DayAheadConstrained(used_list[i])
-    save_csv_PredispatchMarket(used_list[0])
+#     save_csv_PredispatchMarket(used_list[0])
 # t1=datetime.datetime.now()
 # print t1
 # pool=multiprocessing.Pool(multiprocessing.cpu_count())
@@ -118,7 +118,7 @@ def xml_df_PredispatchMarket(xml_folder):
 # print t2-t1
 
 
-day_folder='C:/Users/benson/Desktop/day_data/2016/Predispatch Market Totals Report/'
+day_folder='/home/peak/IESO-DAY/2016/Predispatch Market Totals Report/'
 
 def get_csv_list(daystr,folder):
     f_list=get_list_filename(folder,['.csv'])
@@ -225,12 +225,12 @@ def year_csv2day_PredispatchMarket():
         dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
-    time_index_dataframe(day_str[0])
-    # try:
-    #     pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    #     pool.map(time_index_dataframe,day_list)
-    # except:
-    #     print 'here something wrong'
+    # time_index_dataframe(day_str[0])
+    try:
+        pool=multiprocessing.Pool(multiprocessing.cpu_count())
+        pool.map(time_index_dataframe,day_str)
+    except:
+        print 'here something wrong'
     t2=datetime.datetime.now()
     print t2-t1
 

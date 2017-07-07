@@ -40,8 +40,12 @@ def get_DataFrame_RealtimeShadowPrices(filePath):
                 dict2.update(dict)
                 data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
-xml_folder = '/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/2016/System Adequacy/'
-csv_folder = 'C:/Users/benson/Desktop/2015-csv/Realtime Shadow Prices/'
+
+
+year=2010
+xml_folder = '/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/%s/Realtime Shadow Prices/'%year
+csv_folder = '/home/peak/IESO-CSV/%s/Realtime Shadow Prices/'%year
+day_folder= '/home/peak/IESO-DAY/%s/Realtime Shadow Prices/'%year
 
 def generate_list_RealtimeShadowPrices(startHour,endHour,folder):
     hourList=pd.date_range(startHour,endHour,freq='H')
@@ -91,7 +95,7 @@ def get_list_filename(file_folder,FlagStr=[]):
     return fileList
 
 def year_xml2df_RealtimeShadowPrices(xml_folder):
-    gen_file_list=generate_list_RealtimeShadowPrices('2016-01-01 00:00','2016-12-31 23:00',xml_folder)
+    gen_file_list=generate_list_RealtimeShadowPrices('%s-01-01 00:00'%year,'%s-12-31 23:00'%year,xml_folder)
     get_list_file=get_list_filename(xml_folder,['.xml'])
     print len(get_list_file)
     used_list=[]
@@ -112,7 +116,7 @@ def year_xml2df_RealtimeShadowPrices(xml_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-day_folder= 'C:/Users/benson/Desktop/2015-day/Realtime Shadow Prices/'
+
 
 def is_datetime_equal(t1,t2):
     t=t1-t2
@@ -182,7 +186,7 @@ def time_index_dataframe(daystr):
     t1=datetime.datetime.now()
     print t1
     csv_list=get_csv_list(daystr,csv_folder)
-    print csv_list
+    # print csv_list
     df = pd.read_csv(csv_list[0])
     headers=df.groupby(df['NodeName'])
     headers_node = []
@@ -220,7 +224,7 @@ def time_index_dataframe(daystr):
 def csv_hour_data():
     t1=datetime.datetime.now()
     print t1
-    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 23:00:00',freq='D')
+    day_list=pd.date_range('%s-01-01 00:00:00'%year,'%s-12-31 23:00:00'%year,freq='D')
     day_str=[]
     for day in day_list:
         dstr=str(day).split(' ')[0]
@@ -232,5 +236,6 @@ def csv_hour_data():
     t2=datetime.datetime.now()
     print t2-t1
 
+year_xml2df_RealtimeShadowPrices(xml_folder)
 csv_hour_data()
 

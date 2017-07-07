@@ -224,9 +224,12 @@ def get_DataFrame_SystemAdequacy_v1(filePath):
             data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
 
-xml_folder = '/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/2016/System Adequacy/'
-csv_folder = '/home/peak/IESO-CSV/2016/System Adequacy/'
-day_folder = '/home/peak/IESO-CSV/2016/System Adequacy/'
+year=2010
+
+xml_folder = '/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/%s/System Adequacy/'%year
+csv_folder = '/home/peak/IESO-CSV/%s/System Adequacy/'%year
+day_folder = '/home/peak/IESO-DAY/%s/System Adequacy/'%year
+
 
 def generate_list_filename_v1(startdate, enddate, folder):
     dayList = pd.date_range(startdate, enddate, freq='D')
@@ -271,8 +274,8 @@ def save_csv(filename):
     time.sleep(2)
     return filename
 
-def year_xml2df_systemadequacy(file_folder):
-    gen_file_list = generate_list_filename_v1('20150101', '20151231', file_folder)
+def year_xml2df_systemadequacy(file_folder,year):
+    gen_file_list = generate_list_filename_v1('%s0101'%year, '%s1231'%year, file_folder)
     get_list_file = get_list_filename(file_folder, ['.xml'])
     print len(get_list_file)
     used_list = []
@@ -381,16 +384,18 @@ def time_index_dataframe(daystr):
 def year_csv2day_systemadequacy():
     t1=datetime.datetime.now()
     print t1
-    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='D')
+    day_list=pd.date_range('%s-05-03 00:00:00'%year,'%s-12-31 00:00:00'%year,freq='D')
     day_str=[]
     for day in day_list:
         dstr=str(day).split(' ')[0]
         dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
+    # time_index_dataframe(day_str[0])
     pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    pool.map(time_index_dataframe,day_list)
+    pool.map(time_index_dataframe,day_str)
     t2=datetime.datetime.now()
     print t2-t1
 
+year_xml2df_systemadequacy(xml_folder,year)
 year_csv2day_systemadequacy()

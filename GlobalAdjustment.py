@@ -25,8 +25,8 @@ def get_DataFrame_GlobalAdjustment(filePath):
     data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
 
-file_folder='C:/Users/benson/Desktop/2016/Global Adjustment Report/'
-save_folder='C:/Users/benson/Desktop/IESO/2016/Global Adjustment Report/'
+file_folder='/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/2016/Global Adjustment Report/'
+save_folder='/home/peak/IESO-CSV/2016/Global Adjustment Report/'
 # C:\Users\benson\Desktop\2016\Predispatch Shadow Prices Report
 
 #generate all the fileList

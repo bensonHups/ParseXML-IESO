@@ -32,8 +32,10 @@ def get_DataFrame_PredispatchConstrained(filePath):
             data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
 
-xml_folder='C:/Users/benson/Desktop/2016/Predispatch Constrained Totals Report/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Predispatch Constrained Totals Report/'
+year=2015
+xml_folder='/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/%s/Predispatch Constrained Totals Report/'%year
+csv_folder='/home/peak/IESO-CSV/%s/Predispatch Constrained Totals Report/'%year
+day_folder='/home/peak/IESO-DAY/%s/Predispatch Constrained Totals Report/'%year
 # C:\Users\benson\Desktop\2016\Predispatch Shadow Prices Report
 
 #generate all the fileList
@@ -83,7 +85,7 @@ def print_result(request,result):
     print "result:%s %r"%(request.requestID,result)
 
 def xml_df_parser(xml_folder):
-    gen_file_list=generate_list_PredispatchConstrained('20160101','20161231',xml_folder)
+    gen_file_list=generate_list_PredispatchConstrained('%s0101'%year,'%s1231'%year,xml_folder)
     get_list_file=get_list_filename(xml_folder,['.xml'])
     used_list=[]
     for gen_str in gen_file_list:
@@ -98,15 +100,15 @@ def xml_df_parser(xml_folder):
     print '--------------------------len:%i----------------'%len(used_list)
 # for i in range(len(used_list)):
 #     save_csv_DayAheadConstrained(used_list[i])
-    save_csv_PredispatchConstrained(used_list[0])
-# t1=datetime.datetime.now()
-# print t1
-# pool=multiprocessing.Pool(multiprocessing.cpu_count())
-# pool.map(save_csv_PredispatchConstrained,used_list)
-# t2=datetime.datetime.now()
-# print t2-t1
+#     save_csv_PredispatchConstrained(used_list[0])
+    t1=datetime.datetime.now()
+    print t1
+    pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(save_csv_PredispatchConstrained,used_list)
+    t2=datetime.datetime.now()
+    print t2-t1
 
-day_folder='C:/Users/benson/Desktop/day_data/2016/Predispatch Constrained Totals Report/'
+
 
 def get_csv_list(daystr,folder):
     f_list=get_list_filename(folder,['.csv'])
@@ -201,22 +203,24 @@ def time_index_dataframe(daystr):
 def year_csv2day_PredispatchConstrained():
     t1=datetime.datetime.now()
     print t1
-    day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='D')
+    day_list=pd.date_range('%s-01-01 00:00:00'%year,'%s-12-31 00:00:00'%year,freq='D')
     day_str=[]
     for day in day_list:
         dstr=str(day).split(' ')[0]
         dstr=dstr.replace('-','')
         day_str.append(dstr)
     print day_str
-    time_index_dataframe(day_str[0])
-    # try:
-    #     pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    #     pool.map(time_index_dataframe,day_list)
-    # except:
-    #     print 'here something wrong'
+
+    try:
+        pool=multiprocessing.Pool(multiprocessing.cpu_count())
+        pool.map(time_index_dataframe,day_str)
+    except:
+        print 'here something wrong'
+
     t2=datetime.datetime.now()
     print t2-t1
 
+xml_df_parser(xml_folder)
 year_csv2day_PredispatchConstrained()
 
 

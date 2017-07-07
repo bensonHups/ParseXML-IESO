@@ -35,7 +35,7 @@ def get_DataFrame_DayAheadConstrained(filePath):
 
 
 xml_folder='C:/Users/benson/Desktop/2016/Day-Ahead Constrained Total Report/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Day-Ahead Constrained Total Report/'
+csv_folder='/home/peak/IESO-CSV/2015/Day-Ahead Constrained Total Report/'
 def generate_list_DayAheadConstrained(startdate,enddate,folder):
     dayList=pd.date_range(startdate,enddate,freq='D')
     dayListStr=[]
@@ -105,7 +105,7 @@ def process_year_xml2df(file_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-day_folder='C:/Users/benson/Desktop/day_data/2016/Day-Ahead Constrained Total Report/'
+day_folder='/home/peak/IESO-DAY/2015/Day-Ahead Constrained Total Report/'
 
 
 def is_datetime_equal(t1,t2):
