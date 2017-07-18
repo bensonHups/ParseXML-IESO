@@ -75,6 +75,8 @@ def get_ContractCapacity_solar(opdate):
                         solar_capacity+=energy
     print 'solar_capacity:%.2f'%solar_capacity
 
+
+
 def get_Geo(url):
     u = urllib.urlopen(url)
     data=json.load(u)
