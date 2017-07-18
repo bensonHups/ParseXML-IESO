@@ -105,7 +105,7 @@ def process_year_xml2df(file_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-day_folder='C:/Users/benson/Desktop/day_data/2016/Day-Ahead Constrained Total Report/'
+day_folder='/home/peak/IESO-DAY/2015/Day-Ahead Constrained Total Report/'
 
 
 def is_datetime_equal(t1,t2):

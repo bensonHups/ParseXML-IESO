@@ -225,7 +225,7 @@ def time_index_dataframe(daystr):
     t2=datetime.datetime.now()
     print 'saved:%s'%(t2-t1)
 
-def year_csv2day_systemadequacy():
+def year_csv2day_PredispMktPrice():
     t1=datetime.datetime.now()
     print t1
     day_list=pd.date_range('2016-01-01 00:00:00','2016-12-31 00:00:00',freq='D')
@@ -244,4 +244,4 @@ def year_csv2day_systemadequacy():
     t2=datetime.datetime.now()
     print t2-t1
 
-year_csv2day_systemadequacy()
+year_csv2day_PredispMktPrice()

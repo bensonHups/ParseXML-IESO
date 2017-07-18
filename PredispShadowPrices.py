@@ -185,7 +185,6 @@ def get_list_filename(file_folder, FlagStr=[]):
 
 def time_index_dataframe(daystr):
     t1=datetime.datetime.now()
-
     csv_list=get_csv_list(daystr,csv_folder)
     if len(csv_list)>0:
         df = pd.read_csv(csv_list[0])

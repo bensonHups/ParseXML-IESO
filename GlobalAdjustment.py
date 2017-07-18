@@ -26,7 +26,7 @@ def get_DataFrame_GlobalAdjustment(filePath):
     return pd.DataFrame.from_dict(data_list)
 
 file_folder='C:/Users/benson/Desktop/2016/Global Adjustment Report/'
-save_folder='C:/Users/benson/Desktop/IESO/2016/Global Adjustment Report/'
+csv_folder='C:/Users/benson/Desktop/2015-csv/Global Adjustment Report/'
 # C:\Users\benson\Desktop\2016\Predispatch Shadow Prices Report
 
 #generate all the fileList
@@ -67,7 +67,7 @@ def save_csv_GlobalAdjustment(filename):
     t1=datetime.datetime.now()
     df = get_DataFrame_GlobalAdjustment(filename)
     hour=(filename.split('/')[-1]).split('.')[0]
-    df.to_csv('%s%s.csv' % (save_folder, hour), header=True)
+    df.to_csv('%s%s.csv' % (csv_folder, hour), header=True)
     t2=datetime.datetime.now()
     print 'saved:%s,%s seconds'%(hour,t2-t1)
     time.sleep(2)
@@ -76,21 +76,22 @@ def save_csv_GlobalAdjustment(filename):
 def print_result(request,result):
     print "result:%s %r"%(request.requestID,result)
 
-gen_file_list=generate_list_GlobalAdjustment('2016-01','2017-01',file_folder)
-get_list_file=get_list_filename(file_folder,['.xml'])
-used_list=[]
-for gen_str in gen_file_list:
-    flag=True
-    for get_str in get_list_file:
-        if gen_str==get_str:
-            flag=False
-    if flag==False:
-        used_list.append(gen_str)
-    if flag:
-        print gen_str
-print '--------------------------len:%i----------------'%len(used_list)
-for i in range(len(used_list)):
-    save_csv_GlobalAdjustment(used_list[i])
+def xml_df_parser(file_folder):
+    gen_file_list=generate_list_GlobalAdjustment('2016-01','2017-01',file_folder)
+    get_list_file=get_list_filename(file_folder,['.xml'])
+    used_list=[]
+    for gen_str in gen_file_list:
+        flag=True
+        for get_str in get_list_file:
+            if gen_str==get_str:
+                flag=False
+        if flag==False:
+            used_list.append(gen_str)
+        if flag:
+            print gen_str
+    print '--------------------------len:%i----------------'%len(used_list)
+    for i in range(len(used_list)):
+        save_csv_GlobalAdjustment(used_list[i])
 
 # t1=datetime.datetime.now()
 # print t1
@@ -98,3 +99,18 @@ for i in range(len(used_list)):
 # pool.map(save_csv_PredispAreaOpResShortfalls,used_list)
 # t2=datetime.datetime.now()
 # print t2-t1
+
+day_folder='C:/Users/benson/Desktop/day_data/2016/Global Adjustment Report/'
+
+def generate_year_df(csv_folder):
+    csv_list=get_list_filename(csv_folder,['.csv'])
+    df=pd.read_csv(csv_list[0])
+    for i in range(1,len(csv_list),1):
+        df2=pd.read_csv(csv_list[i])
+        df=pd.concat([df,df2],ignore_index=True)
+    print df.shape
+    print df.head()
+    df.to_csv('C:/Users/benson/Desktop/day_data/2016/Global Adjustment Report/GA_2016.csv')
+generate_year_df(csv_folder)
+
+
