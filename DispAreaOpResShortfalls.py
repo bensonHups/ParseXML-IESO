@@ -40,8 +40,8 @@ def get_DataFrame_DispAreaOpResShortfalls(filePath):
             data_list.append(dict2)
     return pd.DataFrame.from_dict(data_list)
 
-xml_folder='C:/Users/benson/Desktop/IESO/2016/Dispatch Area Operating Reserve Shortfalls/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Dispatch Area Operating Reserve Shortfalls/'
+xml_folder='/home/peak/Dropbox (Peak Power Inc)/IESO/IESO_Organized/2016/Dispatch Area Operating Reserve Shortfalls/'
+csv_folder='/home/peak/IESO-CSV/2016/Dispatch Area Operating Reserve Shortfalls/'
 
 def generate_list_DispAreaOpResAndEnergyCalled(startHour,endHour,folder):
     hourList = pd.date_range(startHour, endHour, freq='H')
@@ -113,7 +113,7 @@ def xml_df_parser(xml_folder):
     t2=datetime.datetime.now()
     print t2-t1
 
-day_folder= 'C:/Users/benson/Desktop/day_data/2016/Dispatch Area Operating Reserve Shortfalls/'
+day_folder= '/home/peak/IESO-DAY/2016/Dispatch Area Operating Reserve Shortfalls/'
 def is_datetime_equal(t1,t2):
     t=t1-t2
     if t.seconds!=0:

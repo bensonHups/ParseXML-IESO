@@ -40,7 +40,7 @@ def get_DataFrame_DispAreaOpResAndEnergyCalled(filePath):
     return pd.DataFrame.from_dict(data_list)
 
 xml_folder='C:/Users/benson/Desktop/2016/Dispatch Area Operating Reserve-Total Scheduled and Total Energy Called/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Dispatch Area Operating Reserve-Total Scheduled and Total Energy Called/'
+csv_folder='/home/peak/IESO-CSV/2016/Dispatch Area Operating Reserve-Total Scheduled and Total Energy Called/'
 
 def generate_list_DispAreaOpResAndEnergyCalled(startHour,endHour,folder):
     hourList = pd.date_range(startHour, endHour, freq='H')
@@ -113,7 +113,7 @@ def xml_df_parser(xml_folder):
 # t2=datetime.datetime.now()
 # print t2-t1
 
-day_folder= 'C:/Users/benson/Desktop/day_data/2016/Dispatch Area Operating Reserve-Total Scheduled and Total Energy Called/'
+day_folder= '/home/peak/IESO-DAY/2016/Dispatch Area Operating Reserve-Total Scheduled and Total Energy Called/'
 
 def is_datetime_equal(t1,t2):
     t=t1-t2

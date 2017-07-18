@@ -58,7 +58,7 @@ def get_DataFrame_TRAPreauctionInterfaceHistoryMonthly(filePath):
     return pd.DataFrame.from_dict(data_list)
 
 file_folder='C:/Users/benson/Desktop/2016/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
-csv_folder='C:/Users/benson/Desktop/IESO/2016/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
+csv_folder='/home/peak/IESO-CSV/2016/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
 
 def generate_list_TRAPreauctionInterfaceHistoryMonthly(startMonth,endMonth,folder):
     monthList=pd.date_range(startMonth,endMonth,freq='BM')
@@ -127,7 +127,7 @@ def xml_df_parser(xml_folder):
 # print t2-t1
 
 
-day_folder= 'C:/Users/benson/Desktop/2015-day/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
+day_folder= '/home/peak/IESO-DAY/2016/Monthly Historical Interface Flows-Schedules- and Transmission Transfer Capability Realtime Intertie Scheduling Limits/'
 def is_datetime_equal(t1,t2):
     t=t1-t2
     if t.seconds!=0:

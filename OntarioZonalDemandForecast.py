@@ -108,7 +108,7 @@ def get_DataFrame_OntarioZonalDemand(filePath):
 
 
 file_folder='C:/Users/benson/Desktop/2016/Ontario Zonal Demand Forecast/'
-csv_folder='C:/Users/benson/Desktop/2015-csv/Ontario Zonal Demand Forecast/'
+csv_folder='/home/peak/IESO-CSV/2016/Ontario Zonal Demand Forecast/'
 # C:\Users\benson\Desktop\2016\Predispatch Shadow Prices Report
 
 #generate all the fileList
@@ -181,7 +181,7 @@ def xml_day_parser(xml_folder):
 # t2=datetime.datetime.now()
 # print t2-t1
 
-day_folder= 'C:/Users/benson/Desktop/day_data/2016/Ontario Zonal Demand Forecast/'
+day_folder= '/home/peak/IESO-DAY/2016/Ontario Zonal Demand Forecast/'
 
 def is_datetime_equal(t1,t2):
     t=t1-t2
@@ -312,11 +312,10 @@ def csv_hour_data():
         dstr=str(day).split(' ')[0]
         dstr=dstr.replace('-','')
         day_str.append(dstr)
-    time_index_dataframe(day_str[0])
-    # print day_str
-    # pool=multiprocessing.Pool(multiprocessing.cpu_count())
-    # pool.map(time_index_dataframe,day_str)
-    # t2=datetime.datetime.now()
-    # print t2-t1
+    print day_str
+    pool=multiprocessing.Pool(multiprocessing.cpu_count())
+    pool.map(time_index_dataframe,day_str)
+    t2=datetime.datetime.now()
+    print t2-t1
 
 csv_hour_data()
